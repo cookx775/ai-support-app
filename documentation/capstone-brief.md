@@ -145,7 +145,7 @@ this further, since both candidates now read from EDGAR.
 | Component | Note |
 |---|---|
 | Lakebase project + database | **Already exists** — `new-database` / `production` / `databricks_postgres`. Free Edition allows only one project, so the capstone **must share it with the support app, isolated by a separate schema** |
-| Databricks App | Deploys from the **root of a Git repository**. Public repo = manual `Deploy > From Git > main`, no Git credential. Automatic GitHub deployment is Beta and **requires a private repository** — do not expect pushes to auto-deploy |
+| Databricks App | **Corrected 2026-08-05:** a **Source code path** may name a subdirectory, which the app then treats as its top level (it cannot read files outside it); an empty path means the repository root. The earlier "root only" claim here was wrong. **Decision: the capstone gets its own public repo with the app at root** — chosen once the constraint was known to be optional. Public repo = manual `Deploy > From Git > main`, no Git credential. Automatic GitHub deployment is Beta and **requires a private repository** — do not expect pushes to auto-deploy. Mechanics in `capstone-app-runbook.md` |
 | App budget | Free Edition allows **3 apps**; homework 1 holds one, so the capstone is app #2 |
 | Relational spine | `users`, `documents`, `document_chunks` (+embeddings), `work_items` (+stage), `work_item_events`, `notes`, `agent_actions` audit — roughly 6 of ~8 tables, identical either way |
 | Parameterized Spark ingest | HTTP JSON → land raw → parse → write, with endpoint and parser as config |
@@ -160,6 +160,13 @@ payload-specific parser, the scoring logic, and the frontend's specific views.
 built before. Day 2 (Aug 5) teaches it. Any work on it before that class is a spike, not
 an implementation. The *path* is now settled — `pgvector` in Lakebase, reusing the Day 1
 connection pool — so the class fills in technique rather than deciding architecture.
+
+**Vector dimension settled 2026-08-05:** every candidate embedding endpoint
+(`databricks-gte-large-en`, `databricks-bge-large-en`, `qwen3-embedding-0-6b`) produces
+**1024 dimensions**, so the column is `vector(1024)` regardless of which one Free Edition
+turns out to expose. The schema is therefore **not** blocked on that verification. Prefer
+GTE for its 8192-token window; BGE's 512-token window would force smaller chunks over
+long Federal Register notices.
 
 ## Open questions — **all nine resolved 2026-08-05**
 

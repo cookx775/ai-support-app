@@ -21,6 +21,7 @@ fixes that. It is written to be sufficient on its own.
 | `documentation/bootcamp.md` | Program structure, deadlines, certification bar, submission mechanics | Facts about the course |
 | `documentation/capstone-brief.md` | Capstone acceptance criteria, candidate designs, shared architecture, open questions | The build spec |
 | `documentation/delivery-plan.md` | Task checklist, sequencing, milestones, risk register, status log | **The single source of truth for status.** Update at the end of every work block |
+| `documentation/capstone-app-runbook.md` | Capstone app mechanics: repo layout, local loop, Lakebase roles, Git-sourced jobs, deploy | Mark each fact doc-verified or ⚠️ unverified, and correct in place once executed |
 | `documentation/platform-assessment-log.md` | Contemporaneous evidence for the written platform assessment | Append as friction occurs, never reconstruct afterward |
 | `documentation/research/` | Verified platform findings | **First-party citations only.** Separate verified fact from project decision from local observation, and stamp `Last verified` |
 | `documentation/missions/` | Per-assignment learning objectives | One file per assignment |

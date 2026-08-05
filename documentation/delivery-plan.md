@@ -73,23 +73,28 @@ Not required: CDF → Delta. Ignore it unless everything else is finished.
 Unblocking work only. Everything here is cheap and everything here changes the shape of the
 build if it comes back wrong — which is exactly why none of it should wait.
 
-- [ ] **C0.1 — Verify where the capstone app deploys from.** ⚠️ **Highest priority; ~10 min.**
-      `capstone-brief.md` records that Apps deploy from the **repository root**, and this repo's
-      root is already the HW1 support app. Open the Databricks Apps create flow and check
-      whether a source **subdirectory/path** can be specified.
-      - If yes: the capstone lives in a subdirectory of this repo. Nothing else changes.
-      - If no: the capstone needs **its own public GitHub repository**, created as a sibling
-        directory on this drive. This workspace repo stays the documentation and submission
-        record. Decide and record the answer in `capstone-brief.md` before writing any app code.
-- [ ] **C0.2 — Confirm the app budget.** Count apps currently in the workspace against the limit
-      of 3. Confirm HW1's app is the only one. If HW2 or HW3 turns out to need a dedicated app,
-      the budget is 4-against-3 and something must be deleted — know this before Saturday.
-- [ ] **C0.3 — Verify available serving endpoints.** Which **embedding model** and which **chat
-      model** are actually reachable on this Free Edition account? This is the one architectural
-      unknown the research pass did not settle: `pgvector` is the committed *store*, but nothing
-      records what *generates* the vectors. If no embedding endpoint is available, the fallback
-      is a local model inside the Spark job — a different dependency and a different runtime
-      cost. Record the finding in `research/free-edition-ai-capabilities.md`.
+**A wayfinder pass on 2026-08-05 closed C0.1 and C0.2 from first-party docs and produced
+`capstone-app-runbook.md`** — repo layout, the local `run-local` loop, Lakebase role mechanics,
+Git-sourced jobs, and the deploy/restart procedure. Read it before the first build session; it
+exists so Aug 6–9 is spent on the product rather than on platform archaeology.
+
+- [x] **C0.1 — RESOLVED by the wayfinder pass.** The root-only constraint does not exist: Apps
+      accept a **Source code path** naming a subdirectory. The brief's claim was wrong and is
+      corrected. **Decision: the capstone gets its own public repository with the app at root** —
+      taken as an informed choice, not a forced one.
+- [x] **C0.2 — Superseded by the wayfinder pass.** App budget confirmed fine (3 apps, HW1 holds
+      one). The real risk was not the count but **Postgres role ownership** across a second app,
+      the Spark jobs, and local dev — see the identity trap in `capstone-app-runbook.md`. Live
+      checks moved to V1–V5 below.
+- [~] **C0.3 — Partially resolved; no longer blocking.** All candidate embedding endpoints are
+      **1024-dimension**, so the schema is `vector(1024)` regardless and C2.1 can proceed. What
+      remains is *which* endpoints this account actually exposes — tracked as **V1**, expected
+      from tonight's class. Record the answer in `research/free-edition-ai-capabilities.md`.
+- [ ] **C0.6 — Create the capstone repository.** Public repo under `cookx775`, cloned as a
+      sibling directory on this drive, commit identity configured, `git push --dry-run` verified
+      **before** any code is written. Full sequence in `capstone-app-runbook.md`.
+- [ ] **V1–V5 — Live verification checklist** in `capstone-app-runbook.md`. All cheap; V4
+      (cross-role grants) is the one that prevents a Saturday `permission denied` hunt.
 - [ ] **C0.4 — Snapshot the HTS schedule.** Call `hts.usitc.gov/reststop/exportList`, confirm
       the keyless ~12s / 35,789-record behaviour still holds, and save the payload locally so no
       later build block is blocked on USITC availability. Remember the inversion: **USITC 403s
@@ -206,9 +211,12 @@ build if it comes back wrong — which is exactly why none of it should wait.
 
 | Risk | Impact | Mitigation |
 |---|---|---|
-| **Capstone app has no deploy root** | Blocks component 4 entirely | C0.1, tonight. Fallback: separate public repo |
-| **No embedding endpoint on Free Edition** | Blocks component 3 | C0.3, tonight. Fallback: local model in the Spark job |
-| **App budget 4-against-3** | Blocks a homework or the capstone | C0.2, tonight. Delete a spare app if needed |
+| ~~Capstone app has no deploy root~~ | — | ✅ **Closed.** Subdirectory paths are supported; own repo chosen anyway |
+| ~~App budget 4-against-3~~ | — | ✅ **Closed.** 3 apps, HW1 holds one |
+| **Postgres role ownership across identities** | App deploys clean, then `permission denied for table` at query time | **App owns all DDL, jobs write data only.** V4 proves it deliberately. This replaced C0.2 as the real risk |
+| **No embedding endpoint on Free Edition** | Degrades component 3; does **not** block the schema | V1, from tonight's class. `vector(1024)` holds either way. Fallback: local model in the Spark job |
+| **10 MB app file limit** | Deploy fails late, after everything looks right | Keep the 35,789-row HTS snapshot out of the app source path — Delta table or volume only |
+| **Git-sourced jobs cannot write workspace files** | Silent design constraint on C2.4 | Land raw Federal Register text in Delta or a volume, never a workspace path |
 | **HW3 lands Aug 8 and eats the endgame** | Certification vs. capstone quality tradeoff | HW3 first that morning; M1 already de-risked by then |
 | **Item 1A mis-slices silently** | Corrupts the embedding corpus with no error | C2.6 eyeballs output. Known: 3 matches, 1 real heading |
 | **Nothing scored until Sunday** | No feedback loop, no recovery time | M1 on Aug 8. The plan's central defence |
@@ -230,3 +238,9 @@ Append one line per work block. Newest last.
 - **2026-08-05** — Plan created. Capstone spec complete, all nine research questions resolved,
   build not started. Three verification items raised for tonight (C0.1 deploy root, C0.2 app
   budget, C0.3 serving endpoints); C0.1 is a potential hard blocker on component 4.
+- **2026-08-05** — Wayfinder pass on the capstone app lifecycle; `capstone-app-runbook.md` added.
+  C0.1 closed (subdirectory paths *are* supported — the brief was wrong; own repo chosen anyway),
+  C0.2 closed and replaced by the Postgres role-ownership risk, C0.3 downgraded from blocking
+  (all embedding endpoints are 1024-dim, so C2.1 can start). Found: `run-local` defaults to
+  `app.yml` not `app.yaml`; 10 MB per-app-file limit; Git-sourced jobs cannot write workspace
+  files. Next: C0.6 create the repo, then V1–V5.

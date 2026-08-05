@@ -49,3 +49,37 @@ Recorded after the fact, which is exactly the habit this file exists to replace.
 - **Classification:** platform property, not a Free Edition limit.
 - **Verdict:** genuinely good design — no database password exists to leak — with a real
   onboarding cost that a first-party quickstart should absorb rather than hand to the developer.
+
+### 2026-08-05 — Documentation is silent on multiple apps sharing one Lakebase database
+
+- **What happened:** attaching a Lakebase resource to an app creates a Postgres role named for
+  the app's service principal and grants it `CONNECT`/`CREATE` on the database. Nothing in the
+  first-party documentation addresses what happens with a **second** app on the same database:
+  no guidance on schema isolation, cross-role grants, or which identity should own DDL. Local
+  development and Spark jobs each add further identities again.
+- **Cost:** found by reasoning ahead rather than by failing, so the cost was avoided rather than
+  paid. The latent failure is severe and badly signposted — the app deploys and starts cleanly,
+  then fails at query time with `permission denied for table`.
+- **Documentation:** **not covered.** The single-app path is documented well; the multi-app path
+  is undocumented, and it is not an exotic scenario.
+- **Classification:** platform property. Free Edition's one-project limit *forces* the shared
+  database and so makes the gap unavoidable here, but the same ambiguity exists on paid tiers.
+- **Verdict:** the automatic role creation is good ergonomics for the first app and an unmapped
+  edge for the second. An evaluation should assume identity and grant management is work the
+  team owns, and that documentation will not lead it.
+
+### 2026-08-05 — Small defaults that cost real time
+
+Individually trivial, cumulatively the texture of the developer experience. Recorded because an
+assessment built only on architecture misses where the hours actually go.
+
+- `databricks apps run-local` defaults `--entry-point` to **`app.yml`**, while every Databricks
+  App example and the deployed runtime use **`app.yaml`**. The local command therefore does not
+  find the file that the platform itself generates.
+- The Lakebase UI displays a UUID more prominently than the `projects/.../endpoints/...`
+  resource name that the credential API requires (the Day 1 entry above).
+- No single app file may exceed **10 MB**, and the failure surfaces at deploy time rather than
+  at commit time.
+- **Classification:** platform properties, all documented somewhere and none discoverable at the
+  moment of use. The pattern is consistent enough to be worth naming in the assessment: the
+  documentation is accurate, and the product does not surface it where the decision is made.

@@ -47,6 +47,7 @@ documentation/         Durable context: bootcamp program, platform research, les
 documentation/bootcamp.md      What the bootcamp is, deadlines, certification bar
 documentation/capstone-brief.md  Capstone acceptance criteria and candidate designs
 documentation/delivery-plan.md   Task checklist, milestones, risks — start here to work
+documentation/capstone-app-runbook.md  Capstone app build/deploy mechanics
 documentation/platform-assessment-log.md  Running evidence for the platform write-up
 documentation/research/        Verified platform findings, first-party citations only
 documentation/missions/        Per-assignment learning objectives
