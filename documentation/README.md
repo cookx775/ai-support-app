@@ -55,6 +55,27 @@ One-way, to avoid two competing sources of truth over the same facts:
 - At milestones, insights derived here are carried **drive → knowledge base**, on the
   machine where that base lives. Never the reverse.
 
+## Working on a machine for the first time
+
+**The drive is portable; git credentials are not.** Every new machine needs a one-time
+GitHub authentication before it can push, and the failure mode is confusing: the commit
+identity (`cookx775@users.noreply.github.com`) lives in this repository's config and
+travels with the drive, so local commits look correct while `git push` is rejected with
+`403 Permission denied` — often naming a *different* GitHub account that happens to be
+authenticated on that machine.
+
+Identity and authorization are separate. Before the first push on a new machine:
+
+```bash
+gh auth login --hostname github.com --git-protocol https --web   # choose cookx775
+gh auth switch --hostname github.com --user cookx775
+gh auth setup-git
+```
+
+`gh auth setup-git` is not optional if the machine's credential helper is
+`osxkeychain` — it will otherwise keep handing git a stale token for whichever account
+was there first. Verify with `gh auth status` and a `git push --dry-run`.
+
 ## Backup
 
 The drive is **exFAT** — no journaling, so an unclean eject during a write can corrupt
