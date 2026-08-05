@@ -12,6 +12,7 @@ from support_app.domain import (
     Status,
     ValidationError,
     actor_email,
+    forwarded_email,
     validate_message,
     validate_ticket,
 )
@@ -120,13 +121,11 @@ except Exception:
     st.stop()
 
 headers = forwarded_headers()
-forwarded_email = next(
-    (value for key, value in headers.items() if key.lower() == "x-forwarded-email"), None
-)
+databricks_email = forwarded_email(headers)
 local_identity = os.getenv("LOCAL_USER_EMAIL", "")
 
 st.sidebar.markdown("## Create a ticket")
-if not forwarded_email:
+if not databricks_email:
     local_identity = st.sidebar.text_input(
         "Local development identity",
         value=local_identity,
@@ -250,12 +249,11 @@ except Exception:
 
 detail_column, action_column = st.columns([2, 1])
 with detail_column:
-    st.markdown(f"## #{selected.ticket_id} · {selected.title}")
-    st.markdown(
-        f"<div class='ticket-meta'>Created by {selected.created_by} on "
+    st.subheader(f"#{selected.ticket_id} · {selected.title}")
+    st.caption(
+        f"Created by {selected.created_by} on "
         f"{selected.created_at.strftime('%B %d, %Y at %H:%M UTC')} · "
-        f"Priority: <strong>{PRIORITY_LABELS[selected.priority]}</strong></div>",
-        unsafe_allow_html=True,
+        f"Priority: {PRIORITY_LABELS[selected.priority]}"
     )
 
 with action_column:

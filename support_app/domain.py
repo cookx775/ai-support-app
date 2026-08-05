@@ -58,10 +58,13 @@ def validate_message(*, message_text: str, author: str) -> dict[str, str]:
     }
 
 
-def actor_email(headers: Mapping[str, str], fallback: Optional[str] = None) -> str:
-    forwarded = next(
+def forwarded_email(headers: Mapping[str, str]) -> Optional[str]:
+    return next(
         (value for key, value in headers.items() if key.lower() == "x-forwarded-email"),
         None,
     )
-    candidate = forwarded or fallback or ""
+
+
+def actor_email(headers: Mapping[str, str], fallback: Optional[str] = None) -> str:
+    candidate = forwarded_email(headers) or fallback or ""
     return _required(candidate, "Author")

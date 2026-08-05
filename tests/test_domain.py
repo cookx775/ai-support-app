@@ -3,6 +3,7 @@ from support_app.domain import (
     Status,
     ValidationError,
     actor_email,
+    forwarded_email,
     validate_message,
     validate_ticket,
 )
@@ -79,6 +80,10 @@ def test_actor_email_prefers_forwarded_databricks_identity():
 
 def test_actor_email_uses_local_fallback_when_header_missing():
     assert actor_email({}, fallback="local@example.com") == "local@example.com"
+
+
+def test_forwarded_email_header_lookup_is_case_insensitive():
+    assert forwarded_email({"x-FoRwArDeD-eMaIl": "user@example.com"}) == "user@example.com"
 
 
 def test_status_and_priority_values_match_database_contract():
