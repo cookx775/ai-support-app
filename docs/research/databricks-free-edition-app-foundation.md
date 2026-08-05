@@ -95,6 +95,15 @@ These observations describe the local machine and are not claims from Databricks
 - The Databricks CLI was not installed or available on `PATH` at the time of inspection.
 - GitHub CLI was installed at `/opt/homebrew/bin/gh`, but the active `cookx775` credential was invalid. `gh auth login -h github.com` is required before repository creation or push.
 
+## Implementation outcome (2026-08-04)
+
+- GitHub CLI authentication for `cookx775` was restored, the workspace was initialized as a Git repository, and `main` was pushed to the public [cookx775/ai-support-app](https://github.com/cookx775/ai-support-app) repository.
+- The existing Free Edition Lakebase project `new-database` was reused because the account is limited to one project. The app uses the `production` branch, `databricks_postgres` database, and endpoint resource name `projects/new-database/branches/production/endpoints/primary`.
+- A Databricks App named `ai-support-app` was created, attached to Lakebase with **Can connect and create**, and manually deployed from public GitHub branch `main`. Its URL is https://ai-support-app-7474657586545240.aws.databricksapps.com.
+- Deployed verification created ticket `#4`, added a message, changed its status to `in_progress`, and confirmed all values remained after a full browser refresh. The app correctly used the signed-in identity supplied by Databricks.
+- A direct Lakebase query returned four tickets and seven messages. A catalog query confirmed `ticket_messages_ticket_id_fkey` as `FOREIGN KEY (ticket_id) REFERENCES support.tickets(ticket_id)`.
+- The final automated verification passed 22 tests plus Ruff and Git whitespace checks. Submission screenshots are stored under `docs/submission/`.
+
 ## First-party references
 
 - [Databricks Free Edition limitations](https://docs.databricks.com/aws/en/getting-started/free-edition-limitations)

@@ -2,24 +2,22 @@
 
 ## Deliverables
 
-- **Databricks App URL:** _Add after deployment_
+- **Databricks App URL:** https://ai-support-app-7474657586545240.aws.databricksapps.com
 - **Source ZIP:** `ai-support-app.zip`
-- **Deployed application screenshot:** _Attach after final verification_
-- **Lakebase tables and sample-records screenshot:** _Attach after final verification_
+- **Deployed application screenshot:** `docs/submission/deployed-application.jpg`
+- **Lakebase tables and sample-records screenshot:** `docs/submission/lakebase-tables-and-records.jpg`
 
 ## Verification checklist
 
-- [ ] Existing tickets load from Lakebase.
-- [ ] A new ticket can be created.
-- [ ] A message can be added to an existing ticket.
-- [ ] A ticket's status can be updated.
-- [ ] All changes remain after refreshing the app.
-- [ ] `ticket_messages.ticket_id` has a foreign key to `tickets.ticket_id`.
-- [ ] The database contains at least three tickets and two messages per ticket.
-- [ ] Screenshots contain no credentials, tokens, or secret values.
+- [x] Existing tickets load from Lakebase.
+- [x] A new ticket can be created.
+- [x] A message can be added to an existing ticket.
+- [x] A ticket's status can be updated.
+- [x] All changes remain after refreshing the app.
+- [x] `ticket_messages.ticket_id` has a foreign key to `tickets.ticket_id`.
+- [x] The database contains at least three tickets and two messages per seeded ticket.
+- [x] Screenshots contain no credentials, tokens, or secret values.
 
-## Reflection draft
+## Reflection
 
-_Revise the first sentence after deployed verification so it reflects the work actually completed._
-
-The most difficult part so far has been designing the Lakebase connection around Databricks service-principal permissions and renewable OAuth database credentials. Lakebase differs from a traditional analytics table because it is PostgreSQL designed for low-latency transactional reads and writes, with relational constraints and immediate row-level updates rather than batch-oriented analytical processing. Its persistence also remains independent of the Databricks App lifecycle, which makes it appropriate for operational application state. The next feature I would add is ownership and assignment routing so support teams can track responsibility and response time for each ticket.
+The most difficult part was configuring the Lakebase connection correctly because the OAuth credential request requires the endpoint's resource name, not the UUID-style identifiers displayed elsewhere in the Lakebase interface. Lakebase differs from a traditional analytics table because it is PostgreSQL designed for low-latency transactional reads and writes, relational constraints, and immediate row-level updates rather than batch-oriented analytical processing. Its data also persists independently of the Databricks App lifecycle, which makes it appropriate for operational application state. The next feature I would add is ownership and assignment routing so support teams can track responsibility and response time for each ticket.

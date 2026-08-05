@@ -53,7 +53,7 @@ Local database testing additionally requires Databricks CLI authentication and t
 
 1. In **Lakebase Postgres**, create the account's Lakebase project. Use its default `production` branch and `databricks_postgres` database.
 2. Open the branch's compute details and copy its resource name in the form `projects/<project>/branches/<branch>/endpoints/<endpoint>`.
-3. Replace `REPLACE_WITH_LAKEBASE_ENDPOINT_NAME` in `app.yaml` with that non-secret resource name, then commit and push the change to `main`.
+3. Set `ENDPOINT_NAME` in `app.yaml` to that non-secret resource name, then commit and push the change to `main`. This repository is already configured for the bootcamp workspace's `new-database/production/primary` endpoint; change it when deploying to another workspace.
 4. In **Databricks Apps**, create a custom app named `ai-support-app` and configure its Git source as this public GitHub repository, branch `main`.
 5. Add an App resource of type **Database**, select the Lakebase project, `production` branch, and `databricks_postgres` database, and grant **Can connect and create**.
 6. Review authorizations and deploy. The first request can take several seconds if Lakebase has scaled to zero.
@@ -88,4 +88,3 @@ Capture one screenshot of the deployed app and one showing the Lakebase tables/s
 - Lakebase is the only runtime datastore; there is no local or hard-coded fallback ticket store.
 
 See [the durable research record](docs/research/databricks-free-edition-app-foundation.md) for the verified platform constraints and primary documentation.
-
