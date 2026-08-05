@@ -5,6 +5,12 @@ Last verified: **2026-08-05** · Due **Aug 9, 10:00 PM PT**
 The build spec. Decisions here were settled in a structured brainstorming session on
 2026-08-05; the reasoning is recorded so a later session does not re-derive it.
 
+**Updated 2026-08-05 after a primary-source research pass.** All nine open questions are
+resolved, the anchor filer is chosen, A2 is rejected, and B1's risk profile is corrected.
+Evidence lives in `research/free-edition-ai-capabilities.md` and
+`research/capstone-candidate-feasibility.md`; this file carries the decisions, those carry
+the citations.
+
 ## Acceptance criteria — five mandatory components
 
 **Authority:** the instructor's published requirements repo,
@@ -86,19 +92,40 @@ enters the diligence queue next?
 - **Agent write actions:** add to pipeline · advance/reject stage · generate and store a
   diligence question list · write a **cited** memo · record thesis-fit score. Cited
   answers are explicitly called for in the instructor's own recommended spec.
-- **Lowest data risk of the set** — EDGAR is free, keyless, and stable.
+- **Lowest *financial*-data risk of the set** — EDGAR is free, keyless, and stable.
+  Corrected 2026-08-05: this was originally written as lowest data risk overall, which
+  research disproved. It holds for XBRL and **not** for the corpus.
 - **Risks:** likely the most crowded idea among finance-background participants, and
   "thesis fit" is subjective so convincing tests are harder to write.
+- **The corpus is the real risk, and it is worse than A1's.** SEC publishes no section
+  delimiter; inline XBRL tags numeric facts, not sections; anchor IDs are per-filing
+  hashes. Measured on a real filing, "Item 1A" matched three times with **only one the
+  actual heading**. A mis-sliced section raises no error — it silently corrupts the
+  embedding corpus, so B1 needs its own extraction-validation step budgeted. Also expect
+  revenue-tag fragmentation: roughly half of mid-cap filers report only
+  `RevenueFromContractWithCustomerExcludingAssessedTax` and carry no `Revenues` fact.
+  See `research/capstone-candidate-feasibility.md`.
 
-## Deferred: A2 — Supplier Distress Early-Warning
+## Rejected on research: A2 — Supplier Distress Early-Warning
 
-Shares A1's entire relational spine; only the incoming corpus differs (distress news via
-GDELT vs. policy text). Model it as a second `threat_source` type and populate it **only
-if there is spare time**. Otherwise it becomes the "what we would build next" slide,
-which suits the future-facing framing.
+**Status changed 2026-08-05.** Previously deferred as a spare-time extension on the
+reasoning that it shares A1's entire relational spine and only the incoming corpus differs.
+The spine claim is true but misleading — **the corpus is the expensive part**, and research
+disqualified it on two independent grounds:
 
-Strongest raw business value of anything generated, but mid on novelty: *news → sentiment
-→ risk score* is the most predictable agent demo in existence.
+- **GDELT's DOC 2.0 API returns no article body**, only headline, URL, and metadata. A
+  distress signal from headlines alone is thin and does not meaningfully feed component 3.
+  Reaching real text means GKG CSV parsing or BigQuery, the latter requiring a second cloud
+  credential outside the Databricks environment.
+- **Supplier-name matching has no GDELT-provided solution.** `V2Organizations` is raw NLP
+  extraction tuned to favour recall over precision, with no disambiguation, subsidiary
+  linkage, or ticker resolution. Matching it to a suppliers table means hand-building fuzzy
+  entity resolution with tuned thresholds — a multi-day project, not a spare-time toggle.
+
+It survives as the "what we would build next" slide, which still suits the future-facing
+framing, **provided the data limitation is stated honestly**. Strongest raw business value
+of anything generated, but mid on novelty: *news → sentiment → risk score* is the most
+predictable agent demo in existence. See `research/capstone-candidate-feasibility.md`.
 
 ## Ideas considered and rejected
 
@@ -131,44 +158,79 @@ payload-specific parser, the scoring logic, and the frontend's specific views.
 
 **Caveat:** the embedding / vector-search plumbing is corpus-agnostic but has never been
 built before. Day 2 (Aug 5) teaches it. Any work on it before that class is a spike, not
-an implementation.
+an implementation. The *path* is now settled — `pgvector` in Lakebase, reusing the Day 1
+connection pool — so the class fills in technique rather than deciding architecture.
 
-## Open questions — resolve before building the late-bound half
+## Open questions — **all nine resolved 2026-08-05**
 
-**Blocking both candidates, highest priority:**
+Answered by a primary-source research pass. Evidence and citations live in
+`research/free-edition-ai-capabilities.md` (1–3) and
+`research/capstone-candidate-feasibility.md` (4–9). Summaries only below; do not re-derive.
 
-1. What is the actual embedding / vector-search path on **Free Edition**? Is Mosaic Vector
-   Search available, or must embeddings come from a foundation-model endpoint with vectors
-   stored in Lakebase (pgvector)? What did enabling "Lakebase search" on Day 1 provision?
-2. Can an **AgentBricks** agent on Free Edition be given custom **write** tools, and how
-   are they registered? Day 3 (Aug 7) covers this.
-3. Is Spark usable meaningfully for ingest on serverless Free Edition, or does the
-   pipeline collapse into notebook Python? Component 1 requires "a pipeline in Spark."
+**Blocking both candidates:**
+
+1. **Vector search — both paths work.** Mosaic Vector Search was *renamed* **Databricks AI
+   Search**, not withdrawn; Free Edition grants 1 endpoint, Delta Sync index type only
+   (Direct Vector Access unsupported). Independently, **Lakebase supports `pgvector`**
+   (extension `vector`, hnsw/ivfflat, no preview gating). "Lakebase search" is a *third*,
+   Beta feature provisioning `lakebase_vector` + `lakebase_text` (BM25) — enabling it
+   restarts all project computes and is **irreversible**.
+   **Decision: `pgvector` is the committed path**; AI Search is a stretch goal only.
+2. **Agent write tools — yes, via the App.** UC-function writes are permitted only by
+   absence of a stated restriction, and Agent Bricks' regional availability is unverified.
+   The documented path is a Python agent loop inside the Databricks App writing through the
+   app service principal's Lakebase credential. **Decision: hand-rolled tools in the App.**
+3. **Spark — real Spark.** DataFrame API and `spark.sql` with Delta/UC writes, schedulable
+   as Jobs. Constraints: **Spark Connect only, no RDD API**, no `.cache()`/`.persist()`/
+   `.checkpoint()`, 5 concurrent job tasks per account. Component 1 is satisfiable.
 
 **A1-specific:**
 
-4. Does the **Federal Register API** expose full notice text, and do HTS codes appear in
-   machine-findable form? Which agencies and document types carry them (USTR,
-   Commerce/ITA, CBP, USITC)? What monthly volume?
-5. Is there a free API for the **HTS schedule itself** (USITC HTS / DataWeb, or the
-   published export files) to map code → description → duty rate?
-6. Which **real mid-cap industrial filer** is the best anchor? Criteria: single-ish
-   segment, named raw-material inputs in Item 1/1A, explicit tariff discussion in Risk
-   Factors, recent 10-K. **Unchosen — this is the last design decision before the domain
-   model can be written.**
+4. **Federal Register — YES, HTS codes are machine-findable.** The A1 single point of
+   failure is cleared. Verified in live documents (`2026-15975`, `2026-15220`, `2026-15181`);
+   the reliable pattern is Commerce/ITA **"Scope of the Order"** boilerplate. Volume is
+   ~30–40 HTS-bearing documents/month, steady. `/documents.json` is metadata only — body
+   text comes from `raw_text_url` / `full_text_xml_url`. **Constraint:** exhaustive annexes
+   are often published as page images with no text layer, so **A1 is scoped to
+   scope-description matching, not annex line-item coverage.**
+5. **HTS schedule — solved.** `hts.usitc.gov/reststop/exportList` returns all 35,789 records
+   keyless in ~12s. **Chapter 99 codes are duty *modifiers* that stack** on a base
+   classification, matched by free-text scope description rather than a structured join —
+   which is the "not a SQL problem" argument. DataWeb is the wrong tool (account + MFA,
+   returns trade statistics).
+6. **Anchor filer — CHOSEN: Mueller Water Products (MWA), CIK 1350593.** Selected over
+   Gorman-Rupp's simpler single-segment structure because its Item 1A and MD&A carry
+   **quantified** tariff impact, which converts directly into test assertions. Carries two
+   modelling consequences: **two segments**, and a **fiscal year ending 09-30** that must
+   not be aligned naively against calendar-quarter data.
 
 **B1-specific:**
 
-7. **SEC EDGAR** full-text search + XBRL `frames`: rate limits, the User-Agent header
-   requirement, and whether Item 1A / Item 7 are cleanly delimited or must be parsed
-   heuristically.
-8. Which XBRL financial concepts are reliably populated across mid-cap filers — what can
-   a thesis screen actually filter on?
+7. **EDGAR — keyless, 10 req/s, descriptive User-Agent mandatory** (bare requests 403).
+   Prefer the nightly bulk ZIPs over per-CIK looping. **Item 1A / Item 7 are NOT cleanly
+   delimited** — no section markers, inline XBRL tags numeric facts only, anchor IDs are
+   per-filing hashes. This is B1's real risk; see the corrected B1 section above.
+8. **XBRL concepts — revenue tagging is fragmented.** Safe to screen on: `NetIncomeLoss`,
+   `OperatingIncomeLoss`, `Assets`, `StockholdersEquity`, `CashAndCashEquivalents…`,
+   `LongTermDebtNoncurrent`, `EarningsPerShareDiluted`, `GrossProfit`. Revenue requires
+   coalescing two tags. The `srt` taxonomy is absent entirely.
 
-**A2, only if cheap:**
+**A2:**
 
-9. GDELT 2.0 DOC API shape, and whether supplier-name matching is tractable without an
-   entity-resolution layer.
+9. **Rejected.** The DOC API returns no article body, and supplier-name matching needs a
+   hand-built entity-resolution layer. See the rejected-on-research section above.
+
+### Newly opened by this research
+
+- Free Edition also caps **1 SQL warehouse** and **1 AI Search endpoint** — the latter is
+  a scarce, single, non-reusable resource, which is part of why `pgvector` wins.
+- `www.sec.gov` and `www.usitc.gov` have **opposite** bot rules: SEC 403s *without* a
+  descriptive User-Agent, USITC 403s *with* a browser-like one. Do not commit a real
+  personal or employer address in the SEC header — this repository is public.
+- Federal Register plain text is **hard-wrapped mid-sentence**; normalise whitespace before
+  phrase matching or regexes silently return nothing.
+- Optional enhancement worth ~half a day: `modifications_to_hts` provides an
+  **HTS revision ↔ Federal Register document ↔ legal authority** join key.
 
 ## Time budget
 
