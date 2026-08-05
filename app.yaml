@@ -8,6 +8,6 @@ command:
   - --browser.gatherUsageStats=false
 env:
   - name: ENDPOINT_NAME
-    value: projects/49927f92-2967-4bd8-9054-0a5c5386e7e1/branches/br-spring-mouse-d8c5efbx/endpoints/ep-cold-sea-d8n7660f
+    value: projects/new-database/branches/production/endpoints/primary
   - name: LOG_LEVEL
     value: INFO
