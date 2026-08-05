@@ -3,6 +3,9 @@
 Durable context for this bootcamp workspace. Read this first; it says what lives where
 and what must never be written here.
 
+**Starting a work session?** Go to [`delivery-plan.md`](delivery-plan.md) — it holds the
+task checklist, the current phase, and what is blocking.
+
 ## Why this layer exists
 
 This drive moves between machines. A separate personal knowledge base holds the
@@ -17,6 +20,8 @@ fixes that. It is written to be sufficient on its own.
 |---|---|---|
 | `documentation/bootcamp.md` | Program structure, deadlines, certification bar, submission mechanics | Facts about the course |
 | `documentation/capstone-brief.md` | Capstone acceptance criteria, candidate designs, shared architecture, open questions | The build spec |
+| `documentation/delivery-plan.md` | Task checklist, sequencing, milestones, risk register, status log | **The single source of truth for status.** Update at the end of every work block |
+| `documentation/platform-assessment-log.md` | Contemporaneous evidence for the written platform assessment | Append as friction occurs, never reconstruct afterward |
 | `documentation/research/` | Verified platform findings | **First-party citations only.** Separate verified fact from project decision from local observation, and stamp `Last verified` |
 | `documentation/missions/` | Per-assignment learning objectives | One file per assignment |
 | `documentation/lessons/`, `reference/`, `assets/` | Teaching material written for this workspace | Relative links between them; keep them moving together |

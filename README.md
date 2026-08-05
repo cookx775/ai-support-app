@@ -46,13 +46,16 @@ the repository it deploys. Everything else is organised around it:
 documentation/         Durable context: bootcamp program, platform research, lessons
 documentation/bootcamp.md      What the bootcamp is, deadlines, certification bar
 documentation/capstone-brief.md  Capstone acceptance criteria and candidate designs
+documentation/delivery-plan.md   Task checklist, milestones, risks — start here to work
+documentation/platform-assessment-log.md  Running evidence for the platform write-up
 documentation/research/        Verified platform findings, first-party citations only
 documentation/missions/        Per-assignment learning objectives
 submissions/homework-N/        The graded record: ZIP, screenshots, write-up
 ```
 
 Start at [documentation/README.md](documentation/README.md) for the map and the rules
-about what belongs where.
+about what belongs where, or go straight to
+[documentation/delivery-plan.md](documentation/delivery-plan.md) for what to do next.
 
 ## Run tests locally
 

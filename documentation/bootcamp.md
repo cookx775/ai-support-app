@@ -103,6 +103,9 @@ Verified against first-party documentation — see
 
 ## Assignment status
 
+**Live status, sequencing, and blockers live in `delivery-plan.md`** — that file is
+authoritative. The table below is a coarse index only; do not maintain status in two places.
+
 | Assignment | Dropped | State |
 |---|---|---|
 | Homework 1 — Lakebase-backed support app | Aug 4 | **Submitted, graded 100/100.** Record in `submissions/homework-1/` |
