@@ -1,0 +1,15 @@
+from pathlib import Path
+
+from streamlit.testing.v1 import AppTest
+
+
+def test_app_shows_safe_configuration_help_when_lakebase_is_not_attached(monkeypatch):
+    for name in ("PGHOST", "PGDATABASE", "PGUSER", "ENDPOINT_NAME"):
+        monkeypatch.delenv(name, raising=False)
+
+    app_path = Path(__file__).parents[1] / "app.py"
+    app = AppTest.from_file(app_path).run()
+
+    assert not app.exception
+    assert "Missing Lakebase configuration" in app.error[0].value
+    assert "Attach the Lakebase resource" in app.info[0].value

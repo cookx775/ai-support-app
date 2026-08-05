@@ -1,0 +1,14 @@
+command:
+  - streamlit
+  - run
+  - app.py
+  - --server.address=0.0.0.0
+  - --server.port=8000
+  - --server.headless=true
+  - --browser.gatherUsageStats=false
+env:
+  - name: ENDPOINT_NAME
+    value: REPLACE_WITH_LAKEBASE_ENDPOINT_NAME
+  - name: LOG_LEVEL
+    value: INFO
+

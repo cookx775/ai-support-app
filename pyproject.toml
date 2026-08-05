@@ -1,0 +1,12 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+ignore = [
+  "EXE002", # External-volume mount marks regular source files executable.
+  "UP045",  # Keep Optional syntax compatible with Python 3.9's parser.
+]
