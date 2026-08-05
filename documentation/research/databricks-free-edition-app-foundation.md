@@ -102,7 +102,8 @@ These observations describe the local machine and are not claims from Databricks
 - A Databricks App named `ai-support-app` was created, attached to Lakebase with **Can connect and create**, and manually deployed from public GitHub branch `main`. Its URL is https://ai-support-app-7474657586545240.aws.databricksapps.com.
 - Deployed verification created ticket `#4`, added a message, changed its status to `in_progress`, and confirmed all values remained after a full browser refresh. The app correctly used the signed-in identity supplied by Databricks.
 - A direct Lakebase query returned four tickets and seven messages. A catalog query confirmed `ticket_messages_ticket_id_fkey` as `FOREIGN KEY (ticket_id) REFERENCES support.tickets(ticket_id)`.
-- The final automated verification passed 22 tests plus Ruff and Git whitespace checks. Submission screenshots are stored under `docs/submission/`.
+- The final automated verification passed 22 tests plus Ruff and Git whitespace checks. Submission screenshots are stored under `submissions/homework-1/`.
+- **Graded result: 100/100.** Homework 1 is closed; this document is the frozen Day 1 record and should not be revised except to correct an error. Platform findings from later assignments belong in their own research documents.
 
 ## First-party references
 

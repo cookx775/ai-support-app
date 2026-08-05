@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recreate the Lakebase Support App</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+</head>
+<body>
+<main>
+  <header>
+    <p class="small" style="color:white">Databricks Free Edition · Manual recreation guide</p>
+    <h1>Recreate the Lakebase Support App</h1>
+    <p>A Databricks-first walkthrough from GitHub source to a persistent, verified App. Coding is intentionally summarized; the operational steps and failure modes are explicit.</p>
+  </header>
+
+  <section class="lede">
+    <h2 style="margin-top:0">The finished architecture</h2>
+    <p><strong>Signed-in user → Databricks App (Streamlit) → OAuth-authenticated PostgreSQL connection → Lakebase <code>support</code> schema.</strong></p>
+    <p>The App can stop or redeploy without deleting ticket data. Databricks supplies connection metadata to the App, while the code requests short-lived database credentials at runtime. No database password belongs in GitHub.</p>
+  </section>
+
+  <h2>Before you start</h2>
+  <div class="checklist">
+    <ul>
+      <li>A Databricks Free Edition workspace.</li>
+      <li>A GitHub repository containing an app entry point, dependency file, and <code>app.yaml</code>.</li>
+      <li>Room under Free Edition limits: one Lakebase project and three Apps.</li>
+      <li>A plan to deploy manually from a public repository's <code>main</code> branch.</li>
+    </ul>
+    <p class="callout"><strong>Reuse before creating.</strong> Free Edition permits only one Lakebase project. If one already exists, use it rather than trying to create another.</p>
+  </div>
+
+  <h2>Manual Databricks walkthrough</h2>
+  <div class="steps">
+    <section class="step">
+      <h3>Confirm the GitHub source is deployable</h3>
+      <p>Push the application to a public GitHub repository on <code>main</code>. At minimum, the root needs the app entry point, <code>requirements.txt</code>, and <code>app.yaml</code>. Our repository is <a href="https://github.com/cookx775/ai-support-app">cookx775/ai-support-app</a>.</p>
+      <p class="small">Keep credentials, <code>.env</code> files, cached files, and local virtual environments out of Git.</p>
+    </section>
+
+    <section class="step">
+      <h3>Create or identify the Lakebase project</h3>
+      <p class="path">Databricks workspace → Lakebase Postgres Autoscaling</p>
+      <p>Create a project only if the account does not already have one. A new project normally provides a <code>production</code> branch and <code>databricks_postgres</code> database. This build reused the existing project <code>new-database</code>.</p>
+      <p>Record four names: project, branch, database, and primary compute endpoint. You will select the first three when attaching the resource and use the endpoint resource name in <code>app.yaml</code>.</p>
+    </section>
+
+    <section class="step">
+      <h3>Copy the endpoint resource name—not its UID</h3>
+      <p class="path">Lakebase project → production branch → Overview → Computes → primary → Get ID → Copy resource name</p>
+      <p>The working value had this shape:</p>
+      <pre><code>projects/new-database/branches/production/endpoints/primary</code></pre>
+      <div class="callout"><strong>Most important pitfall:</strong> the project, branch, and endpoint screens also show UUID-style UIDs. Passing those UIDs to the OAuth credential API caused an “Endpoint not found” error followed by a connection-pool timeout. Use the value labeled <em>resource name</em>.</div>
+    </section>
+
+    <section class="step">
+      <h3>Place the endpoint resource name in the App configuration</h3>
+      <p>Set a non-secret environment value such as <code>ENDPOINT_NAME</code> in <code>app.yaml</code>. The runtime command should start the web server on <code>0.0.0.0</code> and port <code>8000</code>, which is the port expected by Databricks Apps.</p>
+      <p>Commit and push the configuration. The endpoint resource name identifies infrastructure but is not a password.</p>
+    </section>
+
+    <section class="step">
+      <h3>Create the Databricks App</h3>
+      <p class="path">Databricks workspace → Apps → Create app → Custom app</p>
+      <p>Name it <code>ai-support-app</code> and add a short description. Databricks creates an App service principal; this identity is what the deployed process uses when it connects to other Databricks resources.</p>
+    </section>
+
+    <section class="step">
+      <h3>Configure Git as the App source</h3>
+      <p>Choose GitHub, enter the public repository, and select <code>main</code>. A public repository does not require a Git credential. Confirm the App overview shows the expected repository and branch.</p>
+      <p class="callout">Automatic GitHub deployment was unavailable for this public-repository setup because the feature requires a private repository and Git credential. Use the App's <strong>Deploy</strong> button after each push.</p>
+    </section>
+
+    <section class="step">
+      <h3>Attach Lakebase as an App resource</h3>
+      <p>In the App's resources or configuration flow, add a <strong>Database</strong> resource. Select:</p>
+      <ul>
+        <li>Project: <code>new-database</code> (or your project)</li>
+        <li>Branch: <code>production</code></li>
+        <li>Database: <code>databricks_postgres</code></li>
+        <li>Permission: <strong>Can connect and create</strong></li>
+      </ul>
+      <p>Databricks then authorizes the App service principal and injects PostgreSQL settings such as <code>PGHOST</code>, <code>PGDATABASE</code>, <code>PGUSER</code>, <code>PGPORT</code>, and <code>PGSSLMODE</code>.</p>
+    </section>
+
+    <section class="step">
+      <h3>Understand the one coding detail that affects operations</h3>
+      <p>The application should not expect a static <code>PGPASSWORD</code>. It should use the Databricks SDK to generate a short-lived OAuth database credential for the endpoint resource name, and renew credentials when the connection pool opens new connections.</p>
+      <p>The remaining implementation can vary. This app creates an idempotent <code>support</code> schema, two related tables, indexes, constraints, and sample data on its first successful startup. All user values are sent through parameterized PostgreSQL queries.</p>
+    </section>
+
+    <section class="step">
+      <h3>Deploy manually and read the deployment events</h3>
+      <p class="path">App overview → Deploy</p>
+      <p>A successful deployment progresses through source download, App specification loading, dependency installation, build, and start. Confirm the Git commit displayed on the App overview matches the commit you intended to deploy.</p>
+      <p>If the build succeeds but the UI reports Lakebase is unavailable, open <strong>Logs</strong>. An endpoint-not-found error usually means step 3 used a UID. A slow first query can simply be Lakebase waking from scale-to-zero.</p>
+    </section>
+
+    <section class="step">
+      <h3>Verify the required workflows in the deployed UI</h3>
+      <p>Open the App URL and perform the complete acceptance sequence:</p>
+      <ol>
+        <li>Confirm the three seeded tickets and their messages load.</li>
+        <li>Create a uniquely named verification ticket.</li>
+        <li>Add a message to that ticket.</li>
+        <li>Change its status.</li>
+        <li>Refresh the entire browser page.</li>
+        <li>Confirm the ticket, message, and new status remain.</li>
+      </ol>
+      <p class="callout success"><strong>Why refresh matters:</strong> it proves the state was committed to Lakebase rather than existing only in Streamlit session memory.</p>
+    </section>
+
+    <section class="step">
+      <h3>Verify the rows directly in Lakebase</h3>
+      <p class="path">Lakebase project → production branch → SQL Editor</p>
+      <p>Select the primary compute and <code>databricks_postgres</code> database, then query both tables:</p>
+      <pre><code>SELECT * FROM support.tickets ORDER BY ticket_id;
+SELECT * FROM support.ticket_messages ORDER BY ticket_id, created_at;</code></pre>
+      <p>Confirm at least three tickets, two messages for every seeded ticket, and multiple statuses.</p>
+    </section>
+
+    <section class="step">
+      <h3>Verify the foreign key explicitly</h3>
+      <pre><code>SELECT conname, pg_get_constraintdef(oid) AS definition
+FROM pg_constraint
+WHERE conrelid = 'support.ticket_messages'::regclass
+  AND contype = 'f';</code></pre>
+      <p>The result should state that <code>ticket_messages.ticket_id</code> references <code>support.tickets(ticket_id)</code>.</p>
+    </section>
+
+    <section class="step">
+      <h3>Capture evidence and prepare for grading</h3>
+      <p>Capture one screenshot of the deployed UI showing ticket statistics and records, and another of the Lakebase SQL Editor showing both table names and sample rows. Put the App URL, screenshots, source, checklist, and 3–5 sentence reflection in the submission archive.</p>
+      <p class="callout"><strong>Free Edition reminder:</strong> an App stops after 24 hours. Restart or redeploy it shortly before grading, then open the public App URL once to confirm it is responsive.</p>
+    </section>
+  </div>
+
+  <h2>What the finished result looked like</h2>
+  <div class="two-column">
+    <figure class="card">
+      <img src="../docs/submission/deployed-application.jpg" alt="Deployed AI Support Desk">
+      <figcaption class="small">Deployed App with persisted verification ticket and message.</figcaption>
+    </figure>
+    <figure class="card">
+      <img src="../docs/submission/lakebase-tables-and-records.jpg" alt="Lakebase SQL results">
+      <figcaption class="small">Direct Lakebase query showing both tables and sample records.</figcaption>
+    </figure>
+  </div>
+
+  <h2>Retrieval check</h2>
+  <details><summary>Which Lakebase identifier belongs in the OAuth credential request?</summary><p>The endpoint <strong>resource name</strong>, such as <code>projects/new-database/branches/production/endpoints/primary</code>, not the UUID-style project, branch, or endpoint UIDs.</p></details>
+  <details><summary>What proves the data is operationally persistent?</summary><p>Create or update data through the deployed App, perform a full browser refresh, and confirm the state is re-read from Lakebase. A direct SQL query provides additional evidence.</p></details>
+  <details><summary>Why is no database password committed?</summary><p>Databricks injects connection metadata and the application generates rotating, short-lived OAuth database credentials using its service principal.</p></details>
+
+  <section class="card">
+    <h2 style="margin-top:0">Primary reading</h2>
+    <p>Start with <a href="https://docs.databricks.com/aws/en/oltp/projects/databricks-apps">Using Lakebase with Databricks Apps</a>. Keep the <a href="https://docs.databricks.com/aws/en/getting-started/free-edition-limitations">Free Edition limitations</a> open while creating resources.</p>
+    <p>For a compact repeatable sequence, use the <a href="../reference/databricks-app-recreation-checklist.html">one-page recreation checklist</a>. Ask Codex follow-up questions whenever a label or permission in your workspace differs from this walkthrough.</p>
+  </section>
+</main>
+</body>
+</html>

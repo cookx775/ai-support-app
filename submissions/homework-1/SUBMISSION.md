@@ -4,8 +4,8 @@
 
 - **Databricks App URL:** https://ai-support-app-7474657586545240.aws.databricksapps.com
 - **Complete upload archive:** `ai-support-app-submission.zip` (source code included)
-- **Deployed application screenshot:** `docs/submission/deployed-application.jpg`
-- **Lakebase tables and sample-records screenshot:** `docs/submission/lakebase-tables-and-records.jpg`
+- **Deployed application screenshot:** `deployed-application.jpg`
+- **Lakebase tables and sample-records screenshot:** `lakebase-tables-and-records.jpg`
 
 ## Verification checklist
 

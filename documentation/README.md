@@ -1,0 +1,63 @@
+# Documentation
+
+Durable context for this bootcamp workspace. Read this first; it says what lives where
+and what must never be written here.
+
+## Why this layer exists
+
+This drive moves between machines. A separate personal knowledge base holds the
+narrative and stakeholder context, but it lives on one machine only, so any build
+session on another machine used to start with no foundation — no statement of what the
+bootcamp is, why it is being done, or what the capstone has to satisfy. This layer
+fixes that. It is written to be sufficient on its own.
+
+## What belongs where
+
+| Path | Holds | Rule |
+|---|---|---|
+| `documentation/bootcamp.md` | Program structure, deadlines, certification bar, submission mechanics | Facts about the course |
+| `documentation/capstone-brief.md` | Capstone acceptance criteria, candidate designs, shared architecture, open questions | The build spec |
+| `documentation/research/` | Verified platform findings | **First-party citations only.** Separate verified fact from project decision from local observation, and stamp `Last verified` |
+| `documentation/missions/` | Per-assignment learning objectives | One file per assignment |
+| `documentation/lessons/`, `reference/`, `assets/` | Teaching material written for this workspace | Relative links between them; keep them moving together |
+| `submissions/homework-N/` | The graded record: ZIP, screenshots, write-up | Immutable once graded. Fix errors only |
+| repository root | Application source | Databricks Apps reads `app.py` and `app.yaml` from the **repository root**. Nothing here may move |
+
+## Sensitivity rule — this is a PUBLIC repository
+
+Nothing committed here may name the employer, its people, its financial targets, its
+partners, its portfolio, or any internal strategy. Committing to a public repository is
+irreversible: it is cached, indexed, and forked, and deleting a file later does not
+undo it.
+
+This costs nothing, because the material that is confidential is material a build
+session never needs. State the framing generically and it stays fully useful:
+
+> Undertaken as hands-on preparation for an employer platform evaluation, with a
+> written pros/cons assessment owed at the end. The finished build will be demonstrated
+> to executive leadership as a **platform-capability argument** — "here is what this
+> platform does end to end, and here is the shape of thing we would pursue" — rather
+> than as a product pitch. The business problem should therefore land on input-cost /
+> margin exposure or on acquisition screening, and should exercise capability the
+> incumbent BI stack cannot deliver today.
+
+That paragraph is the entire narrative a build needs. Names, figures, dates, and
+stakeholder specifics stay out.
+
+## Direction of flow
+
+One-way, to avoid two competing sources of truth over the same facts:
+
+- **This drive is authoritative** for platform facts, API behaviour, schema, code,
+  tests, and build decisions.
+- **The personal knowledge base is authoritative** for narrative, stakeholder framing,
+  and how this connects to other work.
+- At milestones, insights derived here are carried **drive → knowledge base**, on the
+  machine where that base lives. Never the reverse.
+
+## Backup
+
+The drive is **exFAT** — no journaling, so an unclean eject during a write can corrupt
+the working tree. Git on GitHub is the only real backup, which is why submission ZIPs
+and screenshots are tracked rather than ignored. Push after every meaningful chunk of
+work, not at the end of the day.

@@ -1,5 +1,4 @@
 .DS_Store
-._*
 .env
 .venv/
 __pycache__/
@@ -9,4 +8,12 @@ __pycache__/
 dist/
 build/
 *.zip
-docs/submission/*.jpg
+# Submission artifacts ARE tracked: they are the per-assignment record of what was
+# graded, and the drive is exFAT with no journaling, so git is their only backup.
+!submissions/**/*.zip
+!submissions/**/*.jpg
+
+# macOS AppleDouble sidecars. MUST stay last: the drive is exFAT, so macOS writes a
+# `._name.ext` sibling for every file, and `._x.zip` / `._x.jpg` would otherwise be
+# re-included by the negations above.
+._*

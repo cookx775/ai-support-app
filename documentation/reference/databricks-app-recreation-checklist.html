@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Databricks App Recreation Checklist</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+</head>
+<body>
+<main>
+  <header>
+    <h1>Lakebase App Checklist</h1>
+    <p>A compact, printable runbook for recreating the support application in Databricks Free Edition.</p>
+  </header>
+  <section class="checklist">
+    <ol>
+      <li>Push deployable source to public GitHub <code>main</code>.</li>
+      <li>Open Lakebase Postgres Autoscaling; reuse the existing project if present.</li>
+      <li>Confirm the <code>production</code> branch and <code>databricks_postgres</code> database.</li>
+      <li>From branch Overview, use <strong>primary → Get ID → Copy resource name</strong>.</li>
+      <li>Set that endpoint resource name as <code>ENDPOINT_NAME</code> in <code>app.yaml</code>.</li>
+      <li>Create a custom Databricks App and select public GitHub branch <code>main</code>.</li>
+      <li>Attach the Lakebase Database resource with <strong>Can connect and create</strong>.</li>
+      <li>Review the App service principal authorization.</li>
+      <li>Deploy manually and confirm source, spec, packages, build, and start all succeed.</li>
+      <li>Open the App: load seeded tickets, create a ticket, add a message, update status.</li>
+      <li>Refresh the browser and confirm every mutation persists.</li>
+      <li>Use Lakebase SQL Editor to inspect both tables and the foreign key.</li>
+      <li>Capture App and Lakebase screenshots; include the App URL and reflection.</li>
+      <li>Restart the App before grading if its 24-hour runtime has elapsed.</li>
+    </ol>
+  </section>
+  <section class="card">
+    <h2 style="margin-top:0">Fast diagnosis</h2>
+    <ul>
+      <li><strong>Endpoint not found:</strong> replace UUID-style IDs with the endpoint resource name.</li>
+      <li><strong>Pool timeout after endpoint error:</strong> treat it as a downstream symptom; fix the endpoint first.</li>
+      <li><strong>First request is slow:</strong> Lakebase may be resuming from scale-to-zero.</li>
+      <li><strong>Push did not change the App:</strong> public Git deployment is manual; click Deploy again.</li>
+      <li><strong>App stopped overnight:</strong> restart it; Free Edition Apps stop after 24 hours.</li>
+    </ul>
+  </section>
+  <p><a href="../lessons/0001-recreate-lakebase-support-app.html">Return to the full walkthrough</a></p>
+</main>
+</body>
+</html>

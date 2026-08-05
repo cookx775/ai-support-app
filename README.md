@@ -36,6 +36,24 @@ tests/                 Unit tests at the domain and repository seams
 app.yaml               Databricks Apps runtime configuration
 ```
 
+## Workspace layout
+
+This repository is also the bootcamp workspace. The application source stays at the
+repository root because Databricks Apps reads `app.py` and `app.yaml` from the root of
+the repository it deploys. Everything else is organised around it:
+
+```text
+documentation/         Durable context: bootcamp program, platform research, lessons
+documentation/bootcamp.md      What the bootcamp is, deadlines, certification bar
+documentation/capstone-brief.md  Capstone acceptance criteria and candidate designs
+documentation/research/        Verified platform findings, first-party citations only
+documentation/missions/        Per-assignment learning objectives
+submissions/homework-N/        The graded record: ZIP, screenshots, write-up
+```
+
+Start at [documentation/README.md](documentation/README.md) for the map and the rules
+about what belongs where.
+
 ## Run tests locally
 
 Python 3.9 or later is required.
@@ -87,4 +105,4 @@ Capture one screenshot of the deployed app and one showing the Lakebase tables/s
 - `ENDPOINT_NAME` and the `PG*` resource values identify infrastructure but are not database passwords.
 - Lakebase is the only runtime datastore; there is no local or hard-coded fallback ticket store.
 
-See [the durable research record](docs/research/databricks-free-edition-app-foundation.md) for the verified platform constraints and primary documentation.
+See [the durable research record](documentation/research/databricks-free-edition-app-foundation.md) for the verified platform constraints and primary documentation.
