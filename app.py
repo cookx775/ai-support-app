@@ -45,6 +45,11 @@ st.markdown(
     """
     <style>
       .stApp { background: #f6f8fb; }
+      [data-testid="stAppViewContainer"] { color: #111827; }
+      [data-testid="stAppViewContainer"] h1,
+      [data-testid="stAppViewContainer"] h2,
+      [data-testid="stAppViewContainer"] h3,
+      [data-testid="stAppViewContainer"] p { color: #111827; }
       [data-testid="stSidebar"] { background: #111827; }
       [data-testid="stSidebar"] * { color: #f9fafb; }
       .support-hero {
@@ -56,6 +61,7 @@ st.markdown(
         box-shadow: 0 12px 30px rgba(16, 42, 67, .18);
       }
       .support-hero h1 { margin: 0; font-size: 2rem; }
+      .support-hero h1, .support-hero p { color: white !important; }
       .support-hero p { margin: .35rem 0 0; opacity: .9; }
       .message-card {
         background: white;
@@ -73,6 +79,7 @@ st.markdown(
         border-radius: 14px;
         padding: .8rem 1rem;
       }
+      div[data-testid="stMetric"] * { color: #111827 !important; }
     </style>
     """,
     unsafe_allow_html=True,
