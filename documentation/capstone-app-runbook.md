@@ -34,7 +34,7 @@ there. Job code lives in the same repo but is referenced by *relative path* from
 which is independent of the app's source path.
 
 ```text
-Tariff-Copilot/                 <- separate public repo, its own remote
+tariff-copilot/                 <- separate public repo, its own remote
 ├── app.py                      <- Streamlit entry point (app source = root)
 ├── app.yaml                    <- command + env, incl. ENDPOINT_NAME
 ├── requirements.txt
@@ -60,6 +60,9 @@ or a volume, written by the ingest job.
 
 ## One-time setup
 
+**Done 2026-08-05.** `https://github.com/cookx775/tariff-copilot` (public), cloned to
+`/Volumes/Crucial X9/tariff-copilot`. Kept here as the recreation record.
+
 1. Create the public GitHub repo under `cookx775`.
 2. Clone it as a **sibling directory on this drive**, beside `Databricks Bootcamp/`.
 3. Set the commit identity locally so it matches the workspace repo:
@@ -70,7 +73,25 @@ or a volume, written by the ingest job.
 4. Authorization is separate from identity, and it is per-machine. If this machine has never
    pushed, see the `gh auth` sequence in `README.md` — `gh auth setup-git` is not optional with
    the `osxkeychain` helper.
-5. Verify with `git push --dry-run` **before** writing code, not after.
+5. Verify with `git push --dry-run` **before** writing code, not after. Run it *twice*: once on
+   the clean tree, which only proves the credential resolves, and once with a commit staged, which
+   prints the real `old..new  main -> main` ref update and is the check that actually means
+   something.
+
+**Cloning onto this drive prints an error that is not a failure.** exFAT plus macOS means an
+AppleDouble `._name.ext` twin is written beside every file, including inside
+`.git/objects/pack/`, where git globs `*.idx` and tries to parse `._pack-*.idx` as a pack index:
+
+```text
+error: non-monotonic index /Volumes/.../.git/objects/pack/._pack-<sha>.idx
+```
+
+The clone completes regardless — the worktree is checked out and `git fsck` is clean. Clear the
+twins and move on; do not re-clone:
+
+```bash
+find . -name '._*' -delete
+```
 
 Two remotes now exist. The exFAT corruption risk applies to both: push each after every
 meaningful chunk.

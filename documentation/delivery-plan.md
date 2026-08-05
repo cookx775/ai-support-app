@@ -90,9 +90,10 @@ exists so Aug 6–9 is spent on the product rather than on platform archaeology.
       **1024-dimension**, so the schema is `vector(1024)` regardless and C2.1 can proceed. What
       remains is *which* endpoints this account actually exposes — tracked as **V1**, expected
       from tonight's class. Record the answer in `research/free-edition-ai-capabilities.md`.
-- [ ] **C0.6 — Create the capstone repository.** Public repo under `cookx775`, cloned as a
-      sibling directory on this drive, commit identity configured, `git push --dry-run` verified
-      **before** any code is written. Full sequence in `capstone-app-runbook.md`.
+- [x] **C0.6 — DONE.** `github.com/cookx775/tariff-copilot` (public), cloned to
+      `/Volumes/Crucial X9/tariff-copilot`, identity set, `git push --dry-run` verified on a real
+      ref update before any code, then pushed for real. Remote author confirmed as
+      `cookx775@users.noreply.github.com`. Only `.gitignore` is committed.
 - [ ] **V1–V5 — Live verification checklist** in `capstone-app-runbook.md`. All cheap; V4
       (cross-role grants) is the one that prevents a Saturday `permission denied` hunt.
 - [ ] **C0.4 — Snapshot the HTS schedule.** Call `hts.usitc.gov/reststop/exportList`, confirm
@@ -244,3 +245,10 @@ Append one line per work block. Newest last.
   (all embedding endpoints are 1024-dim, so C2.1 can start). Found: `run-local` defaults to
   `app.yml` not `app.yaml`; 10 MB per-app-file limit; Git-sourced jobs cannot write workspace
   files. Next: C0.6 create the repo, then V1–V5.
+- **2026-08-05** — C0.6 closed. `cookx775/tariff-copilot` created public, cloned as a sibling on
+  this drive, commit identity set, push path proven by `git push --dry-run` on a real ref update
+  *before* any code. Repo holds `.gitignore` only. Found: cloning onto exFAT prints
+  `error: non-monotonic index` because macOS writes an AppleDouble `._pack-*.idx` twin that git
+  parses as a pack index — the clone still succeeds and `git fsck` is clean; `find . -name '._*'
+  -delete` clears it. Documented in the runbook so it is not mistaken for corruption mid-build.
+  Next: V1–V5 live verification, then C0.4/C0.5 snapshots.
