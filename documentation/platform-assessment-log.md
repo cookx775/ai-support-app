@@ -105,8 +105,30 @@ assessment built only on architecture misses where the hours actually go.
 - **What happened:** opening the app-management page reached Databricks sign-in, but the
   federated OIDC callback ended on a browser-level "site can't be reached" failure. The same
   failure occurred during Homework 1; it is upstream of application deployment and logs.
-- **Cost:** automated deployment and evidence capture could not continue in the embedded browser.
-  The remaining route is the signed-in external browser/manual workflow already used on Day 1.
+- **Recovery:** opening a fresh workspace tab with the signed-in session restored access, and the
+  app deployment plus job runs could continue. The protected `databricksapps.com` app domain
+  remained blocked in the controlled browser, while the workspace deployment status and job
+  output remained accessible.
+- **Cost:** the failed callback interrupted the workflow and required a fresh authenticated tab;
+  it did not indicate an application-code failure.
 - **Documentation:** no useful recovery guidance was surfaced at the failure point.
 - **Classification:** authentication/browser integration friction, not a Free Edition quota and
   not an application-code failure.
+
+### 2026-08-06 — Overlaying psycopg2 crashed a serverless Python task
+
+- **What happened:** the Homework 2 job initially installed `psycopg2-binary` into a serverless
+  environment. Importing it from the ephemeral environment aborted the Python kernel with
+  `SIGABRT`. The instructor's corrected Day 2 material explicitly uninstalls both psycopg2
+  distributions before restarting Python because Databricks Runtime already supplies a native
+  driver.
+- **Recovery:** remove both psycopg2 distributions from the job dependency overlay and use the
+  runtime-provided driver. The same ingestion then completed and inserted 28 embedding chunks.
+  The Databricks App build remains a separate environment and correctly installs
+  `psycopg2-binary` itself.
+- **Cost:** one failed job run plus the time needed to distinguish an ABI/runtime conflict from a
+  database or application defect.
+- **Classification:** serverless runtime/library compatibility, not a Lakebase limitation.
+- **Verdict:** dependency guidance needs to distinguish App builds from serverless task
+  environments. Reusing an ordinary Python requirements file across them is unsafe when native
+  packages overlap with the managed runtime.

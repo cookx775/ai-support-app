@@ -124,6 +124,10 @@ therefore be slower while the model downloads and Lakebase resumes from scale-to
    App deployment whose user-authorization proxy prevents unattended REST calls. It uses the
    same query model and repository cosine-search method as `POST /weather/search`.
 
+5. Verify the live Lakebase objects with `jobs/verify_lakebase_schema.py`. The read-only task
+   reports document and embedding counts, the `vector(384)` column type, the document foreign
+   key, and the HNSW cosine index without exposing connection details.
+
 Supported sync locations are city strings, `{lat, lon, label}` objects, and two-number
 `[lat, lon]` pairs. `limit` is clamped to 1–50 per location; `top_k` is clamped to 1–20.
 

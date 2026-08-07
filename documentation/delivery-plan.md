@@ -38,7 +38,7 @@ missed HW3 certifies nothing.
 | # | Deliverable | Owner deadline | State |
 |---|---|---|---|
 | D1 | Homework 1 — Lakebase support app | Aug 4 | ✅ **Submitted, 100/100.** `submissions/homework-1/` |
-| D2 | Homework 2 — Weather Intelligence | Aug 6 | 🔄 Code/tests complete; live deploy and submission pending |
+| D2 | Homework 2 — Weather Intelligence | Aug 6 | ✅ Built, deployed, live pipeline verified, submission packaged |
 | D3 | Homework 3 | Aug 8 | ⬜ Not dropped |
 | D4 | Capstone — A1 Tariff & Trade-Policy Exposure Copilot | Aug 9 | 🔄 Spec complete, build not started |
 | D5 | Written platform pros/cons assessment (employer) | After Aug 9 | ⬜ Evidence logging starts now, see P1 |
@@ -114,10 +114,11 @@ exists so Aug 6–9 is spent on the product rather than on platform archaeology.
 
 ## Phase 2 — Aug 6 (HW2 + foundation, ~6 hrs)
 
-- [~] **D2 — Homework 2.** Standalone Flask source under `homework-2/`, reusing the Day 1 App
+- [x] **D2 — Homework 2.** Standalone Flask source under `homework-2/`, reusing the Day 1 App
       resource through its source-code path. Direct `psycopg2` document/vector writes replace the
-      lab's failed Spark/JDBC route. Local implementation and tests are complete; deploy, execute
-      the embedding job, capture evidence, package, and submit before moving to capstone work.
+      lab's failed Spark/JDBC route. Deployed to `ai-support-app`; synced 28 Chicago/Austin
+      documents, inserted 28 vectors, verified ranked cosine search plus the live HNSW/FK/vector
+      schema, and packaged the evidence under `submissions/homework-2/`.
 - [ ] **C2.1 — Capstone schema DDL.** Own schema in the shared Lakebase project (one project per
       account, so isolation is by schema). Relational spine — `users`, `documents`,
       `document_chunks` (+ vector column), `work_items` (+ stage), `work_item_events`, `notes`,

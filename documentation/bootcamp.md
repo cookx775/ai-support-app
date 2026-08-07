@@ -101,17 +101,17 @@ Verified against first-party documentation — see
 - Lakebase **scales to zero**, so the first query after an idle period takes several
   seconds.
 
-## Assignment status
+## Assignment index
 
 **Live status, sequencing, and blockers live in `delivery-plan.md`** — that file is
-authoritative. The table below is a coarse index only; do not maintain status in two places.
+authoritative. This table only maps assignments to their durable records.
 
-| Assignment | Dropped | State |
+| Assignment | Dropped | Durable record |
 |---|---|---|
-| Homework 1 — Lakebase-backed support app | Aug 4 | **Submitted, graded 100/100.** Record in `submissions/homework-1/` |
-| Homework 2 — Weather Intelligence vector search | Aug 6 | See mission and authoritative `delivery-plan.md` status |
-| Homework 3 | Aug 8 | Not yet dropped |
-| Capstone | — | Idea selected; see `documentation/capstone-brief.md` |
+| Homework 1 — Lakebase-backed support app | Aug 4 | `submissions/homework-1/` |
+| Homework 2 — Weather Intelligence vector search | Aug 6 | `homework-2/` and `submissions/homework-2/` |
+| Homework 3 | Aug 8 | Add when dropped |
+| Capstone | — | `documentation/capstone-brief.md` |
 
 Homework 2 is standalone application source under `homework-2/`. It reuses the existing
 Databricks App resource through its source-code-path setting, preserving the Day 1 source while
