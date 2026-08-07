@@ -118,6 +118,7 @@ def test_search_uses_cosine_distance_and_returns_empty_or_ranked_rows():
             "location": "Chicago, IL",
             "source_type": "alert",
             "headline": "Flood Warning",
+            "narrative_text": "Flooding is occurring near rivers and low-lying areas.",
             "chunk_text": "Move to higher ground.",
             "issued_at": None,
             "effective_at": None,
@@ -131,6 +132,7 @@ def test_search_uses_cosine_distance_and_returns_empty_or_ranked_rows():
 
     assert matches == rows
     sql, params = cursor.executions[0]
+    assert "d.narrative_text" in sql
     assert "1 - (e.embedding <=> %s::vector) AS similarity" in sql
     assert "ORDER BY e.embedding <=> %s::vector" in sql
     assert params[0] == params[2]

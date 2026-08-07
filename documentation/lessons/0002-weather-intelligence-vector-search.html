@@ -74,7 +74,7 @@
 
     <section class="step">
       <h3>Normalize alerts and forecasts into one document shape</h3>
-      <p>Forecast narrative text comes from <code>detailedForecast</code>. Alert narrative text combines the description and instruction when present. Skip an item that has no non-empty narrative; an empty string is not useful retrieval context.</p>
+      <p>Forecast narrative text comes from each point forecast's <code>detailedForecast</code>. This is the assignment's forecast-discussion-equivalent source; the pipeline does not fetch the separate NWS Area Forecast Discussion product. Alert narrative text combines the description and instruction when present. Skip an item that has no non-empty narrative; an empty string is not useful retrieval context.</p>
       <p>Use the NWS feature ID for alerts. For forecasts, hash normalized coordinates, period start, and period name. These identifiers make repeated synchronization an upsert rather than a duplicate-producing append.</p>
     </section>
 
@@ -138,7 +138,7 @@ FROM weather_hw2.weather_embeddings AS e
 JOIN weather_hw2.weather_documents AS d ON d.id = e.document_id
 ORDER BY e.embedding &lt;=&gt; %s::vector
 LIMIT %s;</code></pre>
-      <p>Return the source metadata and chunk text with the score. Retrieval without attribution is difficult to trust or debug.</p>
+      <p>Return the raw document narrative, source metadata, and matched chunk text with the score. The narrative satisfies the source-record contract while the chunk identifies the exact passage that was embedded. Retrieval without attribution is difficult to trust or debug.</p>
     </section>
 
     <section class="step">

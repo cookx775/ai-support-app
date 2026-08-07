@@ -12,6 +12,10 @@ It requires no API key and supplies two useful forms of unstructured text:
 - active alert descriptions and safety instructions;
 - multi-period `detailedForecast` narratives.
 
+This assignment uses each point forecast's `detailedForecast` as its forecast-narrative source.
+It does not fetch the separate NWS Area Forecast Discussion product; “forecast discussion” in
+the assignment is interpreted as the narrative forecast text returned for each resolved point.
+
 City names are resolved to coordinates with OpenStreetMap Nominatim. The client identifies
 itself, restricts results to the US, caches results for the life of the app process, and limits
 geocoding to one request per second as required by the

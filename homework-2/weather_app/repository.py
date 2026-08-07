@@ -166,6 +166,7 @@ class WeatherRepository:
                 d.location,
                 d.source_type,
                 d.headline,
+                d.narrative_text,
                 e.chunk_text,
                 d.issued_at,
                 d.effective_at,
