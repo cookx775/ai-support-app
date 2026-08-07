@@ -85,6 +85,11 @@ therefore be slower while the model downloads and Lakebase resumes from scale-to
      -d '{"locations":["Chicago, IL",{"lat":30.2672,"lon":-97.7431,"label":"Austin, TX"}],"limit":50}'
    ```
 
+   For deployment verification when the App URL is protected by Databricks user authorization,
+   `jobs/sync_weather_documents.py` provides the same client/repository path as a one-time
+   Git-sourced Python task. It defaults to Chicago and Austin and accepts repeated `--location`
+   arguments.
+
 3. Embed all documents whose current content hash has not been processed:
 
    ```bash
