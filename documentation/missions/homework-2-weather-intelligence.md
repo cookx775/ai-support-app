@@ -29,3 +29,13 @@ embed chunks, and retrieve context with `pgvector`.
 - LLM-generated weather summaries or other RAG generation.
 - Scheduled refresh, multiple weather-text providers, and index benchmarking.
 - A frontend beyond REST discovery and health endpoints.
+
+## Outcome
+
+- **Graded 100/100 on 2026-08-07:** Harvest 25/25, Vectorize 30/30, Retrieve 30/30, and
+  Documentation 15/15.
+- The grader confirmed direct `psycopg2` vector writes, genuine cosine semantic search, and one
+  lazily cached embedding model, with no critical flags.
+- Optional future refinements are a sentence-aware chunker and an `updated_at` name for the
+  embedding timestamp that changes during upsert. They are not required corrections, so the
+  graded implementation and submission archive remain frozen.

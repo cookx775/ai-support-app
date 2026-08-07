@@ -38,7 +38,7 @@ missed HW3 certifies nothing.
 | # | Deliverable | Owner deadline | State |
 |---|---|---|---|
 | D1 | Homework 1 — Lakebase support app | Aug 4 | ✅ **Submitted, 100/100.** `submissions/homework-1/` |
-| D2 | Homework 2 — Weather Intelligence | Aug 6 | ✅ Built, deployed, live pipeline verified, submission packaged |
+| D2 | Homework 2 — Weather Intelligence | Aug 6 | ✅ **Submitted, 100/100.** `submissions/homework-2/` |
 | D3 | Homework 3 | Aug 8 | ⬜ Not dropped |
 | D4 | Capstone — A1 Tariff & Trade-Policy Exposure Copilot | Aug 9 | 🔄 Spec complete, build not started |
 | D5 | Written platform pros/cons assessment (employer) | After Aug 9 | ⬜ Evidence logging starts now, see P1 |
@@ -258,3 +258,8 @@ Append one line per work block. Newest last.
   NWS/Nominatim harvester, Lakebase `vector(384)` schema, direct-psycopg2 embedding job, cosine
   search endpoint, and local test suite. Reuses the existing App slot; live deployment and
   evidence capture remain before submission.
+- **2026-08-07** — Homework 2 graded **100/100**: Harvest 25/25, Vectorize 30/30,
+  Retrieve 30/30, and Documentation 15/15. The grader explicitly confirmed no Spark/JDBC
+  embedding writes, real semantic search, and one lazily cached model. Homework 2 is closed.
+  Sentence-aware chunking and renaming the embedding upsert timestamp from `created_at` to
+  `updated_at` are retained as optional future polish, not changes to the graded artifact.

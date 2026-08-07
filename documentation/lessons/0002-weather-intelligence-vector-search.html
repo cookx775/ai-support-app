@@ -202,6 +202,12 @@ LIMIT %s;</code></pre>
   <details><summary>Why was <code>psycopg2-binary</code> correct for the App but wrong for the job?</summary><p>They are different execution environments. The App build needs to install its database driver; the managed serverless task already includes a native driver, and an overlaid binary wheel conflicted with that runtime.</p></details>
 
   <section class="card">
+    <h2 style="margin-top:0">Graded outcome</h2>
+    <p><strong>100/100:</strong> Harvest 25/25, Vectorize 30/30, Retrieve 30/30, and Documentation 15/15. The grader specifically confirmed that writes use <code>psycopg2</code> rather than Spark JDBC, retrieval is genuine pgvector cosine search, and the MiniLM model is loaded once and cached.</p>
+    <p>The suggested future polish was a sentence-aware chunker and renaming the embedding timestamp from <code>created_at</code> to <code>updated_at</code> because upserts refresh it. Neither was a deduction. They are design refinements for a future version, not reasons to mutate the frozen graded submission.</p>
+  </section>
+
+  <section class="card">
     <h2 style="margin-top:0">Continue from here</h2>
     <p>Use the <a href="../reference/weather-intelligence-pipeline-checklist.html">one-page Weather Intelligence checklist</a> when rebuilding or demonstrating the pipeline. The implementation details and commands live in <a href="../../homework-2/README_WEATHER.md">README_WEATHER.md</a>.</p>
     <p>Primary external references: <a href="https://www.weather.gov/documentation/services-web-api">National Weather Service API documentation</a>, <a href="https://operations.osmfoundation.org/policies/nominatim/">Nominatim usage policy</a>, and <a href="https://github.com/pgvector/pgvector">pgvector documentation</a>.</p>

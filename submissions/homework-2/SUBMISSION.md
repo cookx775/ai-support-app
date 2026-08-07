@@ -1,5 +1,11 @@
 # Day 2 Homework Submission
 
+## Graded result
+
+**100/100** on 2026-08-07: Harvest 25/25, Vectorize 30/30, Retrieve 30/30, and
+Documentation 15/15. The detailed grading record is preserved in `GRADING.md`. This submission
+is now closed and should change only to correct a factual error.
+
 ## Deliverables
 
 - **Databricks App URL:** https://ai-support-app-7474657586545240.aws.databricksapps.com
