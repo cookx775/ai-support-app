@@ -7,7 +7,12 @@ from pathlib import Path
 from typing import Any, Optional
 
 if __package__ in (None, ""):
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    # Databricks Git-sourced Python tasks execute the file through ``exec`` and
+    # expose its path as ``filename`` without defining ``__file__``.
+    script_path = locals().get("__file__") or locals().get("filename")
+    if script_path is None:
+        raise RuntimeError("Unable to determine the Homework 2 application path")
+    sys.path.insert(0, str(Path(script_path).resolve().parents[1]))
 
 from weather_app.embeddings import (
     DEFAULT_CHUNK_OVERLAP,
