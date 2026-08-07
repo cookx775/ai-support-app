@@ -71,30 +71,46 @@ def create_app(
         resolved_locations = []
         errors = []
         validation_failures = 0
+        upstream_failures = 0
+        database_failures = 0
         successful_locations = 0
 
         for requested_location in locations:
             try:
                 resolved = weather_client.resolve_location(requested_location)
-                documents = weather_client.fetch_documents(resolved, limit=limit)
-                synced += repository.upsert_documents(documents)
-                successful_locations += 1
-                resolved_locations.append(
-                    {
-                        "label": resolved.label,
-                        "latitude": resolved.latitude,
-                        "longitude": resolved.longitude,
-                        "documents": len(documents),
-                    }
-                )
             except LocationValidationError as exc:
                 validation_failures += 1
                 errors.append({"location": requested_location, "error": str(exc)})
+                continue
             except WeatherClientError as exc:
+                upstream_failures += 1
                 errors.append({"location": requested_location, "error": str(exc)})
+                continue
+
+            try:
+                documents = weather_client.fetch_documents(resolved, limit=limit)
+            except WeatherClientError as exc:
+                upstream_failures += 1
+                errors.append({"location": requested_location, "error": str(exc)})
+                continue
+
+            try:
+                synced += repository.upsert_documents(documents)
             except Exception:
                 logger.exception("Weather sync failed for %r", requested_location)
+                database_failures += 1
                 errors.append({"location": requested_location, "error": "Lakebase write failed"})
+                continue
+
+            successful_locations += 1
+            resolved_locations.append(
+                {
+                    "label": resolved.label,
+                    "latitude": resolved.latitude,
+                    "longitude": resolved.longitude,
+                    "documents": len(documents),
+                }
+            )
 
         response = {
             "synced": synced,
@@ -103,9 +119,13 @@ def create_app(
         }
         if successful_locations:
             return jsonify(response)
+        if upstream_failures == len(locations):
+            return jsonify(response), 502
         if validation_failures == len(locations):
             return jsonify(response), 400
-        return jsonify(response), 502
+        if database_failures:
+            return jsonify(response), 500
+        return jsonify(response), 400
 
     @app.post("/weather/search")
     def search_weather():

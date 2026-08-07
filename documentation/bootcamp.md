@@ -109,7 +109,7 @@ authoritative. The table below is a coarse index only; do not maintain status in
 | Assignment | Dropped | State |
 |---|---|---|
 | Homework 1 — Lakebase-backed support app | Aug 4 | **Submitted, graded 100/100.** Record in `submissions/homework-1/` |
-| Homework 2 — Weather Intelligence vector search | Aug 6 | Implemented locally; deployment verification pending |
+| Homework 2 — Weather Intelligence vector search | Aug 6 | See mission and authoritative `delivery-plan.md` status |
 | Homework 3 | Aug 8 | Not yet dropped |
 | Capstone | — | Idea selected; see `documentation/capstone-brief.md` |
 

@@ -10,8 +10,6 @@ from dataclasses import dataclass
 from typing import Any, Callable, Optional
 
 import requests
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
 
 NWS_BASE_URL = "https://api.weather.gov"
 NOMINATIM_SEARCH_URL = "https://nominatim.openstreetmap.org/search"
@@ -56,22 +54,19 @@ class WeatherClient:
         timeout: float = 20.0,
         sleeper: Callable[[float], None] = time.sleep,
         clock: Callable[[], float] = time.monotonic,
+        max_attempts: int = 3,
     ) -> None:
         if session is None:
             session = requests.Session()
-            retries = Retry(
-                total=3,
-                backoff_factor=0.5,
-                status_forcelist=(429, 500, 502, 503, 504),
-                allowed_methods=("GET",),
-            )
-            session.mount("https://", HTTPAdapter(max_retries=retries))
+        if max_attempts < 1:
+            raise ValueError("max_attempts must be at least one")
         user_agent = user_agent or os.environ.get("WEATHER_USER_AGENT", DEFAULT_USER_AGENT)
         self._session = session
         self._headers = {"Accept": "application/geo+json", "User-Agent": user_agent}
         self._timeout = timeout
         self._sleeper = sleeper
         self._clock = clock
+        self._max_attempts = max_attempts
         self._geocode_cache: dict[str, ResolvedLocation] = {}
         self._last_geocode_at: Optional[float] = None
         self._geocode_lock = threading.Lock()
@@ -113,7 +108,7 @@ class WeatherClient:
             if elapsed < 1.0:
                 self._sleeper(1.0 - elapsed)
         try:
-            response = self._session.get(
+            response = self._get_response(
                 NOMINATIM_SEARCH_URL,
                 params={
                     "q": query,
@@ -122,10 +117,8 @@ class WeatherClient:
                     "countrycodes": "us",
                 },
                 headers={"User-Agent": self._headers["User-Agent"]},
-                timeout=self._timeout,
             )
             self._last_geocode_at = self._clock()
-            response.raise_for_status()
             candidates = response.json()
             if not isinstance(candidates, list) or not candidates:
                 raise LocationValidationError(f"No US location found for {query!r}")
@@ -167,17 +160,27 @@ class WeatherClient:
         return documents[:limit]
 
     def _get_json(self, url: str, **kwargs: Any) -> dict[str, Any]:
-        response = self._session.get(
+        response = self._get_response(
             url,
             headers=self._headers,
-            timeout=self._timeout,
             **kwargs,
         )
-        response.raise_for_status()
         payload = response.json()
         if not isinstance(payload, dict):
             raise TypeError("expected a JSON object")
         return payload
+
+    def _get_response(self, url: str, **kwargs: Any) -> requests.Response:
+        for attempt in range(self._max_attempts):
+            try:
+                response = self._session.get(url, timeout=self._timeout, **kwargs)
+                response.raise_for_status()
+                return response
+            except requests.RequestException:
+                if attempt + 1 >= self._max_attempts:
+                    raise
+                self._sleeper(0.5 * (2**attempt))
+        raise AssertionError("retry loop exited unexpectedly")
 
     @staticmethod
     def _normalize_alerts(

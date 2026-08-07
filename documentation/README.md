@@ -27,7 +27,8 @@ fixes that. It is written to be sufficient on its own.
 | `documentation/missions/` | Per-assignment learning objectives | One file per assignment |
 | `documentation/lessons/`, `reference/`, `assets/` | Teaching material written for this workspace | Relative links between them; keep them moving together |
 | `submissions/homework-N/` | The graded record: ZIP, screenshots, write-up | Immutable once graded. Fix errors only |
-| repository root | Application source | Databricks Apps reads `app.py` and `app.yaml` from the **repository root**. Nothing here may move |
+| `homework-2/` | Standalone Weather Intelligence app, job, DDL, tests | Deployed by setting the App source-code path to this directory |
+| repository root | Day 1 application source and shared workspace configuration | The Day 1 app remains deployable from root. Nothing already here may move |
 
 ## Sensitivity rule — this is a PUBLIC repository
 

@@ -38,9 +38,9 @@ app.yaml               Databricks Apps runtime configuration
 
 ## Workspace layout
 
-This repository is also the bootcamp workspace. The application source stays at the
-repository root because Databricks Apps reads `app.py` and `app.yaml` from the root of
-the repository it deploys. Everything else is organised around it:
+This repository is also the bootcamp workspace. The Day 1 application remains at the repository
+root. Databricks Apps can deploy either that root or a configured source-code subdirectory, so
+later standalone homework can coexist without moving or overwriting the graded source:
 
 ```text
 documentation/         Durable context: bootcamp program, platform research, lessons

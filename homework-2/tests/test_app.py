@@ -1,5 +1,10 @@
 from weather_app.app import create_app
-from weather_app.weather_client import ResolvedLocation, WeatherClientError, WeatherDocument
+from weather_app.weather_client import (
+    LocationValidationError,
+    ResolvedLocation,
+    WeatherClientError,
+    WeatherDocument,
+)
 
 
 class FakeWeatherClient:
@@ -9,6 +14,8 @@ class FakeWeatherClient:
     def resolve_location(self, value):
         if value == "Broken, IL":
             raise WeatherClientError("NWS unavailable")
+        if value == "Invalid":
+            raise LocationValidationError("Unknown location")
         return ResolvedLocation(str(value), 41.8781, -87.6298)
 
     def fetch_documents(self, location, limit):
@@ -31,15 +38,18 @@ class FakeWeatherClient:
 
 
 class FakeRepository:
-    def __init__(self, matches=None):
+    def __init__(self, matches=None, fail_writes=False):
         self.documents = []
         self.search_calls = []
         self.matches = matches or []
+        self.fail_writes = fail_writes
 
     def initialize_schema(self):
         raise AssertionError("Tests must not initialize Lakebase")
 
     def upsert_documents(self, documents):
+        if self.fail_writes:
+            raise RuntimeError("database unavailable")
         self.documents.extend(documents)
         return len(documents)
 
@@ -92,6 +102,22 @@ def test_weather_sync_returns_502_when_every_location_fails_upstream():
 
     assert response.status_code == 502
     assert response.json["synced"] == 0
+
+
+def test_weather_sync_reserves_502_for_all_upstream_failures():
+    client = build_client()
+
+    mixed = client.post(
+        "/weather/sync",
+        json={"locations": ["Invalid", "Broken, IL"]},
+    )
+    database = build_client(repository=FakeRepository(fail_writes=True)).post(
+        "/weather/sync",
+        json={"locations": ["Chicago, IL"]},
+    )
+
+    assert mixed.status_code == 400
+    assert database.status_code == 500
 
 
 def test_weather_search_validates_query_and_clamps_top_k():

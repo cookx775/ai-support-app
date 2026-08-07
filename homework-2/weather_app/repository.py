@@ -9,10 +9,10 @@ from typing import Any, Optional
 from psycopg2.extras import execute_values
 
 from weather_app.db import get_connection
+from weather_app.embeddings import MODEL_NAME
 from weather_app.weather_client import WeatherDocument
 
 SCHEMA_NAME = "weather_hw2"
-MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
 
 @dataclass(frozen=True)

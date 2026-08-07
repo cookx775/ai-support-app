@@ -1,4 +1,5 @@
-from weather_app.weather_client import ResolvedLocation, WeatherClient
+import requests
+from weather_app.weather_client import ResolvedLocation, WeatherClient, WeatherClientError
 
 
 class StubResponse:
@@ -38,7 +39,8 @@ class StubSession:
                                 "name": "Tonight",
                                 "startTime": "2026-08-06T19:00:00-05:00",
                                 "detailedForecast": "Heavy rain with a chance of flooding.",
-                            }
+                            },
+                            {"name": "Empty", "detailedForecast": "   "},
                         ],
                     }
                 }
@@ -57,7 +59,8 @@ class StubSession:
                                 "sent": "2026-08-06T18:15:00-05:00",
                                 "effective": "2026-08-06T18:15:00-05:00",
                             },
-                        }
+                        },
+                        {"id": "empty-alert", "properties": {"description": ""}},
                     ]
                 }
             )
@@ -82,6 +85,9 @@ def test_fetch_documents_normalizes_forecast_and_alert_records():
     assert documents[1].id.startswith("forecast:")
     assert len(documents[1].content_hash) == 64
 
+    repeated_documents = client.fetch_documents(location, limit=50)
+    assert repeated_documents[1].id == documents[1].id
+
 
 def test_resolve_location_accepts_city_object_and_coordinate_pair_and_caches_city():
     session = StubSession()
@@ -101,3 +107,44 @@ def test_resolve_location_accepts_city_object_and_coordinate_pair_and_caches_cit
     geocoder_calls = [call for call in session.calls if "nominatim" in call[0]]
     assert len(geocoder_calls) == 1
     assert geocoder_calls[0][1]["params"]["countrycodes"] == "us"
+
+
+class FlakySession(StubSession):
+    def __init__(self):
+        super().__init__()
+        self.point_attempts = 0
+
+    def get(self, url, **kwargs):
+        if "/points/" in url:
+            self.point_attempts += 1
+            if self.point_attempts < 3:
+                raise requests.ConnectionError("temporary NWS failure")
+        return super().get(url, **kwargs)
+
+
+def test_fetch_documents_retries_transient_nws_failures():
+    session = FlakySession()
+    sleeps = []
+    client = WeatherClient(session=session, sleeper=sleeps.append, max_attempts=3)
+
+    documents = client.fetch_documents(ResolvedLocation("Chicago, IL", 41.8781, -87.6298))
+
+    assert len(documents) == 2
+    assert session.point_attempts == 3
+    assert sleeps == [0.5, 1.0]
+
+
+class InvalidJsonSession:
+    def get(self, _url, **_kwargs):
+        return StubResponse([])
+
+
+def test_fetch_documents_wraps_malformed_nws_payloads_as_upstream_errors():
+    client = WeatherClient(session=InvalidJsonSession(), sleeper=lambda _seconds: None)
+
+    try:
+        client.fetch_documents(ResolvedLocation("Chicago, IL", 41.8781, -87.6298))
+    except WeatherClientError as exc:
+        assert "Unable to fetch NWS data for Chicago, IL" in str(exc)
+    else:
+        raise AssertionError("Malformed NWS JSON should fail the location sync")
