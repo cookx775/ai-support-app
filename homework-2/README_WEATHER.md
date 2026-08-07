@@ -94,7 +94,14 @@ therefore be slower while the model downloads and Lakebase resumes from scale-to
    Optional flags are `--limit`, `--chunk-size`, and `--chunk-overlap`. In Databricks, run the
    file as a Git-sourced Python script task at
    `homework-2/jobs/ingest_weather_embeddings.py`; it reads `database/lakebase-url` through the
-   Databricks SDK.
+   Databricks SDK. Configure the task's environment/libraries with these PyPI dependencies before
+   its first run; Python script tasks do not inherit the Databricks App build environment:
+
+   ```text
+   databricks-sdk>=0.30.0,<1
+   psycopg2-binary>=2.9.9,<3
+   sentence-transformers>=3.0.0,<6
+   ```
 
 4. Search:
 
