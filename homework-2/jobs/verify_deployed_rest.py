@@ -38,22 +38,33 @@ def verify_deployed_search(
     )
 
     with opener(request, timeout=300) as response:
-        response_body = json.loads(response.read().decode())
+        raw_body = response.read().decode(errors="replace")
         status = response.status
+        content_type = response.headers.get("Content-Type", "")
+        response_url = response.geturl()
 
-    matches = response_body.get("matches")
-    if not isinstance(matches, list):
-        raise TypeError("Deployed search response did not contain a matches list")
-
-    return {
+    evidence: dict[str, Any] = {
         "request": {
             "method": "POST",
             "path": "/weather/search",
             **request_body,
         },
         "http_status": status,
-        "response": response_body,
+        "response_url": response_url,
+        "content_type": content_type,
+        "body_bytes": len(raw_body.encode()),
     }
+    try:
+        response_body = json.loads(raw_body)
+    except json.JSONDecodeError:
+        evidence["body_preview"] = raw_body[:500]
+        return evidence
+
+    matches = response_body.get("matches")
+    if not isinstance(matches, list):
+        raise TypeError("Deployed search response did not contain a matches list")
+    evidence["response"] = response_body
+    return evidence
 
 
 def main(argv: Optional[list[str]] = None) -> None:
