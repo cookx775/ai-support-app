@@ -83,3 +83,30 @@ assessment built only on architecture misses where the hours actually go.
 - **Classification:** platform properties, all documented somewhere and none discoverable at the
   moment of use. The pattern is consistent enough to be worth naming in the assessment: the
   documentation is accurate, and the product does not surface it where the decision is made.
+
+### 2026-08-06 — Lakebase vector writes through Spark JDBC were not a stable path
+
+- **What happened:** the Day 2 lab route reached the vectorization stage but failed near the end
+  of the workbook. The instructor repository then cycled through raw JDBC and Spark JDBC fixes
+  before returning to driver-side `psycopg2`. Spark JDBC could not reliably express the required
+  Postgres upsert and pgvector write semantics in this environment.
+- **Cost:** the original workbook path consumed the lab session without producing a complete
+  retrieval pipeline. Homework 2 was rebuilt around direct batched PostgreSQL writes and
+  `%s::vector` casts rather than trying to rescue that path.
+- **Documentation:** the corrected guidance arrived as repository commits after the class. The
+  assignment itself now explicitly prohibits `spark.write.jdbc` for Lakebase writes.
+- **Classification:** integration/tooling limitation, not a Free Edition quota.
+- **Verdict:** Lakebase's native PostgreSQL surface is a strong escape hatch, but the advertised
+  Spark-to-operational-database transition was materially less seamless than the platform model
+  suggests. Use Spark for transformation and a native database driver for operational writes.
+
+### 2026-08-06 — Federated workspace login failed in the embedded browser again
+
+- **What happened:** opening the app-management page reached Databricks sign-in, but the
+  federated OIDC callback ended on a browser-level "site can't be reached" failure. The same
+  failure occurred during Homework 1; it is upstream of application deployment and logs.
+- **Cost:** automated deployment and evidence capture could not continue in the embedded browser.
+  The remaining route is the signed-in external browser/manual workflow already used on Day 1.
+- **Documentation:** no useful recovery guidance was surfaced at the failure point.
+- **Classification:** authentication/browser integration friction, not a Free Edition quota and
+  not an application-code failure.

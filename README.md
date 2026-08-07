@@ -52,6 +52,7 @@ documentation/platform-assessment-log.md  Running evidence for the platform writ
 documentation/research/        Verified platform findings, first-party citations only
 documentation/missions/        Per-assignment learning objectives
 submissions/homework-N/        The graded record: ZIP, screenshots, write-up
+homework-2/                     Isolated Flask weather/vector-search app and embedding job
 ```
 
 Start at [documentation/README.md](documentation/README.md) for the map and the rules

@@ -8,7 +8,7 @@ def test_app_shows_safe_configuration_help_when_lakebase_is_not_attached(monkeyp
         monkeypatch.delenv(name, raising=False)
 
     app_path = Path(__file__).parents[1] / "app.py"
-    app = AppTest.from_file(app_path).run()
+    app = AppTest.from_file(str(app_path)).run()
 
     assert not app.exception
     assert "Missing Lakebase configuration" in app.error[0].value

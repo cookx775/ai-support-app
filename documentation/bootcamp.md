@@ -109,12 +109,10 @@ authoritative. The table below is a coarse index only; do not maintain status in
 | Assignment | Dropped | State |
 |---|---|---|
 | Homework 1 — Lakebase-backed support app | Aug 4 | **Submitted, graded 100/100.** Record in `submissions/homework-1/` |
-| Homework 2 | Aug 6 | Not yet dropped |
+| Homework 2 — Weather Intelligence vector search | Aug 6 | Implemented locally; deployment verification pending |
 | Homework 3 | Aug 8 | Not yet dropped |
 | Capstone | — | Idea selected; see `documentation/capstone-brief.md` |
 
-**Working hypothesis, unverified:** homework 2 and 3 extend the same support app rather
-than standing alone. The workspace is therefore structured as one evolving application
-tree with per-assignment submission snapshots, which costs nothing if the hypothesis is
-wrong (a standalone assignment simply becomes its own tree) but would be expensive to
-undo if the source had been pre-forked three ways.
+Homework 2 is standalone application source under `homework-2/`. It reuses the existing
+Databricks App resource through its source-code-path setting, preserving the Day 1 source while
+avoiding another app allocation.

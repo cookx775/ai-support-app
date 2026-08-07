@@ -1,5 +1,7 @@
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+addopts = "--import-mode=importlib"
+testpaths = ["tests", "homework-2/tests"]
+pythonpath = [".", "homework-2"]
 
 [tool.ruff]
 line-length = 100

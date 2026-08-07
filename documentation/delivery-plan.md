@@ -1,6 +1,6 @@
 # Delivery Plan
 
-Last updated: **2026-08-05** · Hard cutoff **Aug 9, 10:00 PM PT** = **Aug 10, 12:00 AM CT**
+Last updated: **2026-08-06** · Hard cutoff **Aug 9, 10:00 PM PT** = **Aug 10, 12:00 AM CT**
 
 The execution checklist. `bootcamp.md` says what the program is, `capstone-brief.md` says what
 to build; this file says **what to do next, in what order, and whether it is done**. It is the
@@ -38,7 +38,7 @@ missed HW3 certifies nothing.
 | # | Deliverable | Owner deadline | State |
 |---|---|---|---|
 | D1 | Homework 1 — Lakebase support app | Aug 4 | ✅ **Submitted, 100/100.** `submissions/homework-1/` |
-| D2 | Homework 2 | Aug 6 | ⬜ Not dropped |
+| D2 | Homework 2 — Weather Intelligence | Aug 6 | 🔄 Code/tests complete; live deploy and submission pending |
 | D3 | Homework 3 | Aug 8 | ⬜ Not dropped |
 | D4 | Capstone — A1 Tariff & Trade-Policy Exposure Copilot | Aug 9 | 🔄 Spec complete, build not started |
 | D5 | Written platform pros/cons assessment (employer) | After Aug 9 | ⬜ Evidence logging starts now, see P1 |
@@ -114,9 +114,10 @@ exists so Aug 6–9 is spent on the product rather than on platform archaeology.
 
 ## Phase 2 — Aug 6 (HW2 + foundation, ~6 hrs)
 
-- [ ] **D2 — Homework 2.** Read the spec the moment it drops. First question: does it extend the
-      support app or stand alone? Resolve the `bootcamp.md:113` hypothesis here. **Build and
-      submit the same day.** Do not let it bleed into Aug 7.
+- [~] **D2 — Homework 2.** Standalone Flask source under `homework-2/`, reusing the Day 1 App
+      resource through its source-code path. Direct `psycopg2` document/vector writes replace the
+      lab's failed Spark/JDBC route. Local implementation and tests are complete; deploy, execute
+      the embedding job, capture evidence, package, and submit before moving to capstone work.
 - [ ] **C2.1 — Capstone schema DDL.** Own schema in the shared Lakebase project (one project per
       account, so isolation is by schema). Relational spine — `users`, `documents`,
       `document_chunks` (+ vector column), `work_items` (+ stage), `work_item_events`, `notes`,
@@ -252,3 +253,7 @@ Append one line per work block. Newest last.
   parses as a pack index — the clone still succeeds and `git fsck` is clean; `find . -name '._*'
   -delete` clears it. Documented in the runbook so it is not mistaken for corruption mid-build.
   Next: V1–V5 live verification, then C0.4/C0.5 snapshots.
+- **2026-08-06** — Homework 2 spec received. Built the isolated Weather Intelligence Flask app,
+  NWS/Nominatim harvester, Lakebase `vector(384)` schema, direct-psycopg2 embedding job, cosine
+  search endpoint, and local test suite. Reuses the existing App slot; live deployment and
+  evidence capture remain before submission.
