@@ -99,14 +99,13 @@ therefore be slower while the model downloads and Lakebase resumes from scale-to
 
    ```text
    databricks-sdk>=0.30.0,<1
-   psycopg2-binary>=2.9.9,<3
    sentence-transformers>=3.0.0,<6
    ```
 
-   Databricks serverless also ships a native `psycopg2` build. Git-sourced Python tasks can
-   abort the kernel when the task environment overlays another driver build on it, so the job
-   bootstrap uninstalls both PostgreSQL driver distributions and installs one clean
-   `psycopg2-binary` wheel before importing the application repository.
+   Do **not** add `psycopg2` or `psycopg2-binary` to the serverless job environment. Databricks
+   Runtime already supplies the native driver; overlaying another wheel can abort the Python
+   kernel with `SIGABRT` during import. The App build is a separate environment and still uses
+   `psycopg2-binary` from `requirements.txt`.
 
 4. Search:
 
