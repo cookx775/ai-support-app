@@ -132,7 +132,8 @@ DO UPDATE SET embedding = EXCLUDED.embedding, ...;</code></pre>
     <section class="step">
       <h3>Convert pgvector distance into a ranked result</h3>
       <p>Embed the query once and order rows by cosine distance. The <code>&lt;=&gt;</code> operator returns distance, so subtract it from one for a higher-is-better similarity value:</p>
-      <pre><code>SELECT d.location, d.source_type, d.headline, e.chunk_text,
+      <pre><code>SELECT d.location, d.source_type, d.headline, d.narrative_text,
+       e.chunk_text,
        1 - (e.embedding &lt;=&gt; %s::vector) AS similarity
 FROM weather_hw2.weather_embeddings AS e
 JOIN weather_hw2.weather_documents AS d ON d.id = e.document_id
@@ -168,6 +169,7 @@ LIMIT %s;</code></pre>
         <li>Search for a weather-risk concept and inspect ranked, attributable matches.</li>
         <li>Verify document and embedding counts, <code>vector(384)</code>, the foreign key, and the HNSW cosine index directly.</li>
       </ol>
+      <div class="callout"><strong>Keep evidence boundaries explicit:</strong> a Git-sourced search job proves the model, repository, and Lakebase retrieval path, but it does not prove that a request crossed the deployed App gateway. Capture a raw REST response when the workspace permits an authenticated user or OAuth client to reach the route. If the gateway redirects to interactive OAuth before Flask receives the request, record that limitation rather than relabeling the job output as REST evidence.</div>
     </section>
   </div>
 
@@ -180,6 +182,16 @@ LIMIT %s;</code></pre>
     <figure class="card">
       <img src="../../submissions/homework-2/screenshots/lakebase-vectors.png" alt="Lakebase vector schema verification">
       <figcaption class="small">The live database contained 28 documents and 28 embedding chunks with the required vector type, index, and foreign key.</figcaption>
+    </figure>
+  </div>
+  <div class="two-column">
+    <figure class="card">
+      <img src="../../submissions/homework-2/screenshots/native-databricks-search-job.jpg" alt="Native Databricks semantic-search job output">
+      <figcaption class="small">The native Databricks Jobs view records the successful ranked-search execution and its attributable results.</figcaption>
+    </figure>
+    <figure class="card">
+      <img src="../../submissions/homework-2/screenshots/native-lakebase-embeddings.jpg" alt="Native Lakebase embeddings table view">
+      <figcaption class="small">The native Lakebase Tables view shows persisted rows, the <code>vector(384)</code> column, model metadata, and document relationships.</figcaption>
     </figure>
   </div>
 

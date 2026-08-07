@@ -45,11 +45,13 @@ sentence-transformers&gt;=3.0.0,&lt;6</code></pre>
       <li>Run <code>jobs/ingest_weather_embeddings.py</code> and record document, chunk, and insert counts.</li>
       <li>Rerun ingestion; unchanged documents should produce zero new work.</li>
       <li>Search “flooding or severe weather risk” with <code>top_k=5</code>.</li>
-      <li>Confirm results include location, source type, headline, chunk text, timestamps, and similarity.</li>
+      <li>Confirm results include location, source type, headline, raw narrative text, chunk text, timestamps, and similarity.</li>
       <li>Run <code>jobs/verify_lakebase_schema.py</code>.</li>
       <li>Confirm document and embedding counts, <code>vector(384)</code>, the document foreign key, and the HNSW cosine index.</li>
       <li>Restore the permanent Databricks task path to <code>homework-2/jobs/ingest_weather_embeddings.py</code>.</li>
-      <li>Capture credential-free evidence and rebuild the submission ZIP without caches, virtual environments, secrets, or model artifacts.</li>
+      <li>Capture credential-free native App, Jobs, and Lakebase Tables evidence; use custom summary cards only as supplements.</li>
+      <li>When authentication permits, capture a raw request and JSON response from the deployed REST route. Do not substitute a Git-sourced job result for gateway-level REST proof.</li>
+      <li>Rebuild the submission ZIP without caches, virtual environments, secrets, or model artifacts.</li>
     </ol>
   </section>
 
@@ -63,7 +65,7 @@ sentence-transformers&gt;=3.0.0,&lt;6</code></pre>
       <li><strong>Duplicate forecasts:</strong> normalize coordinates and construct the stable ID from coordinates, period start, and period name.</li>
       <li><strong>Stale search text:</strong> compare document and embedding content hashes, then replace outdated chunks transactionally.</li>
       <li><strong>First operation is slow:</strong> allow for Lakebase scale-to-zero resume and the initial model download.</li>
-      <li><strong>App URL redirects or is blocked:</strong> inspect workspace deployment status and run the equivalent Git-sourced verification task under the authenticated workspace session.</li>
+      <li><strong>App POST redirects to interactive OAuth:</strong> confirm whether the request has an accepted user session or OAuth client. Use the Git-sourced verification task to diagnose the model/repository path, but record the gateway limitation because that task is not REST proof.</li>
     </ul>
   </section>
 
