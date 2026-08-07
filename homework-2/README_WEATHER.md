@@ -103,6 +103,11 @@ therefore be slower while the model downloads and Lakebase resumes from scale-to
    sentence-transformers>=3.0.0,<6
    ```
 
+   Databricks serverless also ships a native `psycopg2` build. Git-sourced Python tasks can
+   abort the kernel when the task environment overlays another driver build on it, so the job
+   bootstrap uninstalls both PostgreSQL driver distributions and installs one clean
+   `psycopg2-binary` wheel before importing the application repository.
+
 4. Search:
 
    ```bash
