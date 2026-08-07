@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Build Weather Intelligence with Lakebase Vector Search</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+</head>
+<body>
+<main>
+  <header>
+    <p class="small" style="color:white">Databricks Free Edition · Context-engineering guide</p>
+    <h1>Build Weather Intelligence with Lakebase Vector Search</h1>
+    <p>Harvest unstructured National Weather Service narratives, preserve them as attributable documents, create MiniLM embeddings, and retrieve relevant context through PostgreSQL and pgvector.</p>
+  </header>
+
+  <section class="lede">
+    <h2 style="margin-top:0">The finished architecture</h2>
+    <p><strong>Location → Nominatim → NWS forecast and alerts → Lakebase documents → chunking → MiniLM vectors → pgvector cosine search → Flask JSON response.</strong></p>
+    <p>The important lesson is not merely “store vectors.” It is to keep a durable document record, attach each vector chunk to that record, use the same normalized model for ingestion and retrieval, and preserve enough provenance to explain every result.</p>
+  </section>
+
+  <h2>What this assignment teaches</h2>
+  <div class="checklist">
+    <ul>
+      <li>How to turn changing API responses into stable, idempotent documents.</li>
+      <li>Why embeddings belong in a separate chunk table linked to source documents.</li>
+      <li>How cosine distance becomes a similarity score in pgvector.</li>
+      <li>Why managed Databricks runtimes and Databricks App builds need different dependency treatment.</li>
+      <li>How to verify the pipeline at the API, job, and database-schema layers.</li>
+    </ul>
+  </div>
+
+  <h2>The data contract</h2>
+  <div class="two-column">
+    <section class="card">
+      <h3>Document</h3>
+      <p>One normalized NWS alert or forecast period.</p>
+      <ul>
+        <li>Stable identifier</li>
+        <li>Location and coordinates</li>
+        <li>Source type and headline</li>
+        <li>Narrative text and timestamps</li>
+        <li>Content hash</li>
+        <li>Raw payload plus source URL</li>
+      </ul>
+    </section>
+    <section class="card">
+      <h3>Embedding chunk</h3>
+      <p>One retrievable passage derived from a current document.</p>
+      <ul>
+        <li>Document foreign key</li>
+        <li>Chunk index and text</li>
+        <li>Matching content hash</li>
+        <li><code>vector(384)</code></li>
+        <li>Embedding model name</li>
+      </ul>
+    </section>
+  </div>
+
+  <h2>End-to-end walkthrough</h2>
+  <div class="steps">
+    <section class="step">
+      <h3>Resolve a location without making geocoding mandatory</h3>
+      <p>Accept city/state strings, coordinate objects, and two-number coordinate pairs. Only strings need Nominatim. Restrict geocoding to the United States, identify the client with a real User-Agent, cache results for the process, and allow no more than one public Nominatim request per second.</p>
+      <p class="callout"><strong>Design consequence:</strong> explicit coordinates keep the weather pipeline usable when public geocoding is unavailable or rate-limited.</p>
+    </section>
+
+    <section class="step">
+      <h3>Discover the forecast endpoint through NWS points</h3>
+      <p>Call <code>GET /points/{lat},{lon}</code>. Do not construct a grid forecast URL yourself; use the <code>forecast</code> URL returned in the point response. Fetch active alerts separately with <code>GET /alerts/active?point=lat,lon</code>.</p>
+      <p>The point response is therefore routing metadata, while the forecast and alert responses contain the narratives that become documents.</p>
+    </section>
+
+    <section class="step">
+      <h3>Normalize alerts and forecasts into one document shape</h3>
+      <p>Forecast narrative text comes from <code>detailedForecast</code>. Alert narrative text combines the description and instruction when present. Skip an item that has no non-empty narrative; an empty string is not useful retrieval context.</p>
+      <p>Use the NWS feature ID for alerts. For forecasts, hash normalized coordinates, period start, and period name. These identifiers make repeated synchronization an upsert rather than a duplicate-producing append.</p>
+    </section>
+
+    <section class="step">
+      <h3>Detect content changes explicitly</h3>
+      <p>Compute a SHA-256 hash of the normalized narrative. Store it on both the document and its embedding chunks. A document needs embedding work when no chunk exists for its current content hash and model.</p>
+      <div class="callout success"><strong>Why this matters:</strong> a stable document ID says “this is the same forecast period”; the content hash says “the text has changed and its old vectors are stale.”</div>
+    </section>
+
+    <section class="step">
+      <h3>Create an isolated Lakebase schema</h3>
+      <p>Keep Homework 2 in <code>weather_hw2</code> so the shared Free Edition Lakebase project can also retain the graded Day 1 tables. Version the DDL in one SQL file. The App, sync task, and ingestion task execute it idempotently; read-only search and verification tasks assume initialization has already succeeded.</p>
+      <pre><code>CREATE TABLE weather_hw2.weather_embeddings (
+  document_id TEXT NOT NULL
+    REFERENCES weather_hw2.weather_documents(id) ON DELETE CASCADE,
+  chunk_index INTEGER NOT NULL,
+  chunk_text TEXT NOT NULL,
+  content_hash TEXT NOT NULL,
+  embedding VECTOR(384) NOT NULL,
+  model_name TEXT NOT NULL,
+  UNIQUE (document_id, chunk_index, model_name)
+);
+
+CREATE INDEX ... USING hnsw (embedding vector_cosine_ops);</code></pre>
+    </section>
+
+    <section class="step">
+      <h3>Use direct PostgreSQL writes</h3>
+      <p>The corrected Day 2 path uses <code>psycopg2</code>, not Spark JDBC. Normalize and batch-upsert documents, then insert vectors with an explicit <code>%s::vector</code> cast. This gives PostgreSQL control of conflict handling, constraints, and pgvector conversion in one transactional path.</p>
+      <pre><code>INSERT INTO weather_hw2.weather_embeddings (..., embedding, ...)
+VALUES %s
+ON CONFLICT (document_id, chunk_index, model_name)
+DO UPDATE SET embedding = EXCLUDED.embedding, ...;</code></pre>
+      <p class="small">The implementation uses an <code>execute_values</code> template containing the vector cast so inserts remain batched.</p>
+    </section>
+
+    <section class="step">
+      <h3>Chunk text with overlap</h3>
+      <p>Use an 800-character window with 100-character overlap. The overlap carries boundary context into the next chunk. Validate that overlap is non-negative and smaller than the chunk size; otherwise the sliding window cannot advance safely.</p>
+      <p>Most forecast periods fit in one chunk. Longer alert descriptions and instructions demonstrate why the chunking seam still belongs in the pipeline.</p>
+    </section>
+
+    <section class="step">
+      <h3>Load MiniLM once and normalize vectors</h3>
+      <p>Use <code>sentence-transformers/all-MiniLM-L6-v2</code> for both document chunks and search queries. It produces 384-dimensional vectors. Load one cached model per process, embed batches during ingestion, and request normalized embeddings.</p>
+      <p class="callout"><strong>Invariant:</strong> ingestion and query code must share the same model identifier, dimension, and normalization convention. A silent mismatch makes similarity scores meaningless or causes a database dimension error.</p>
+    </section>
+
+    <section class="step">
+      <h3>Replace stale chunks transactionally</h3>
+      <p>For each changed document and model, delete all existing chunks, then insert the complete current chunk set in the same transaction. A rerun with no changed documents should report zero work rather than adding rows.</p>
+      <p>The successful live run inserted 28 chunks for 28 Chicago and Austin documents. A later read-only check confirmed the same counts.</p>
+    </section>
+
+    <section class="step">
+      <h3>Convert pgvector distance into a ranked result</h3>
+      <p>Embed the query once and order rows by cosine distance. The <code>&lt;=&gt;</code> operator returns distance, so subtract it from one for a higher-is-better similarity value:</p>
+      <pre><code>SELECT d.location, d.source_type, d.headline, e.chunk_text,
+       1 - (e.embedding &lt;=&gt; %s::vector) AS similarity
+FROM weather_hw2.weather_embeddings AS e
+JOIN weather_hw2.weather_documents AS d ON d.id = e.document_id
+ORDER BY e.embedding &lt;=&gt; %s::vector
+LIMIT %s;</code></pre>
+      <p>Return the source metadata and chunk text with the score. Retrieval without attribution is difficult to trust or debug.</p>
+    </section>
+
+    <section class="step">
+      <h3>Expose narrow REST interfaces</h3>
+      <p><code>POST /weather/sync</code> validates locations, clamps the per-location limit to 1–50, and reports partial failures without discarding successful locations. It returns 502 only if every location fails upstream.</p>
+      <p><code>POST /weather/search</code> requires a non-empty string query, clamps <code>top_k</code> to 1–20, and returns <code>{"matches": []}</code> when no embeddings exist. <code>/</code> and <code>/healthz</code> provide lightweight deployment checks.</p>
+    </section>
+
+    <section class="step">
+      <h3>Separate App dependencies from job dependencies</h3>
+      <p>The Databricks App build installs <code>psycopg2-binary</code> because it owns its isolated environment. A serverless Databricks Python task is different: its managed runtime already supplies native <code>psycopg2</code>.</p>
+      <div class="callout"><strong>Observed failure:</strong> overlaying <code>psycopg2-binary</code> in the serverless task caused a Python-kernel <code>SIGABRT</code> during import. Remove both psycopg2 packages from the task overlay and use the runtime driver. The task only needs the Databricks SDK and sentence-transformers added.</div>
+    </section>
+
+    <section class="step">
+      <h3>Deploy from the Homework 2 source path</h3>
+      <p>Reuse the existing <code>ai-support-app</code> resource and set its source-code path to <code>homework-2</code>. This preserves the Day 1 source at repository root and keeps the third Free Edition App slot available for the capstone.</p>
+      <p>Confirm the deployment events reach packages installed, app built, and app started. The deployed Homework 2 service uses the same <code>database/lakebase-url</code> Databricks secret as the ingestion job without logging it.</p>
+    </section>
+
+    <section class="step">
+      <h3>Verify every boundary, not only the final response</h3>
+      <ol>
+        <li>Confirm the App is running and <code>/healthz</code> returns HTTP 200.</li>
+        <li>Sync Chicago and Austin; verify the resolved locations and document count.</li>
+        <li>Run ingestion and inspect document, chunk, and inserted counts.</li>
+        <li>Search for a weather-risk concept and inspect ranked, attributable matches.</li>
+        <li>Verify document and embedding counts, <code>vector(384)</code>, the foreign key, and the HNSW cosine index directly.</li>
+      </ol>
+    </section>
+  </div>
+
+  <h2>What the verified result looked like</h2>
+  <div class="two-column">
+    <figure class="card">
+      <img src="../../submissions/homework-2/screenshots/semantic-search.png" alt="Ranked semantic weather search results">
+      <figcaption class="small">The same model and repository path used by the REST endpoint ranked Chicago and Austin weather narratives.</figcaption>
+    </figure>
+    <figure class="card">
+      <img src="../../submissions/homework-2/screenshots/lakebase-vectors.png" alt="Lakebase vector schema verification">
+      <figcaption class="small">The live database contained 28 documents and 28 embedding chunks with the required vector type, index, and foreign key.</figcaption>
+    </figure>
+  </div>
+
+  <h2>Retrieval check</h2>
+  <details><summary>Why keep documents and embeddings in separate tables?</summary><p>The document table preserves the normalized source record and provenance. The embedding table can hold multiple chunks or models per document, and stale chunks can be replaced without rewriting the source identity.</p></details>
+  <details><summary>What makes synchronization idempotent?</summary><p>Stable source identifiers plus document upserts prevent duplicates. The content hash distinguishes an unchanged rerun from a changed narrative that needs fresh vectors.</p></details>
+  <details><summary>Why does the query use <code>1 - distance</code>?</summary><p>pgvector's cosine <code>&lt;=&gt;</code> operator returns distance, where smaller is closer. Subtracting from one exposes a similarity value where larger scores rank higher.</p></details>
+  <details><summary>Why was <code>psycopg2-binary</code> correct for the App but wrong for the job?</summary><p>They are different execution environments. The App build needs to install its database driver; the managed serverless task already includes a native driver, and an overlaid binary wheel conflicted with that runtime.</p></details>
+
+  <section class="card">
+    <h2 style="margin-top:0">Continue from here</h2>
+    <p>Use the <a href="../reference/weather-intelligence-pipeline-checklist.html">one-page Weather Intelligence checklist</a> when rebuilding or demonstrating the pipeline. The implementation details and commands live in <a href="../../homework-2/README_WEATHER.md">README_WEATHER.md</a>.</p>
+    <p>Primary external references: <a href="https://www.weather.gov/documentation/services-web-api">National Weather Service API documentation</a>, <a href="https://operations.osmfoundation.org/policies/nominatim/">Nominatim usage policy</a>, and <a href="https://github.com/pgvector/pgvector">pgvector documentation</a>.</p>
+  </section>
+</main>
+</body>
+</html>

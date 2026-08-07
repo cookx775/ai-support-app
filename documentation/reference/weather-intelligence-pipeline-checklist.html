@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Weather Intelligence Pipeline Checklist</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+</head>
+<body>
+<main>
+  <header>
+    <h1>Weather Intelligence Checklist</h1>
+    <p>A compact, printable runbook for rebuilding and verifying the NWS-to-Lakebase vector-search pipeline.</p>
+  </header>
+
+  <section class="checklist">
+    <h2 style="margin-top:0">Build and deploy</h2>
+    <ol>
+      <li>Keep the application isolated under <code>homework-2/</code> and the DDL in <code>sql/schema.sql</code>.</li>
+      <li>Accept city strings and explicit coordinates; apply Nominatim identification, US restriction, caching, and one-request-per-second throttling.</li>
+      <li>Resolve <code>/points</code>, use its returned forecast URL, and fetch point-filtered active alerts separately.</li>
+      <li>Normalize alert and forecast narratives with stable IDs, content hashes, raw payloads, and source URLs.</li>
+      <li>Upsert documents into <code>weather_hw2.weather_documents</code>.</li>
+      <li>Chunk current narratives at 800 characters with 100-character overlap.</li>
+      <li>Embed batches with <code>sentence-transformers/all-MiniLM-L6-v2</code> using normalized 384-dimensional vectors.</li>
+      <li>For each changed document/model, delete all existing chunks and batch-insert the complete current set with direct <code>%s::vector</code> casts.</li>
+      <li>Create the document foreign key, uniqueness constraint, lookup indexes, and HNSW <code>vector_cosine_ops</code> index.</li>
+      <li>Expose validated <code>POST /weather/sync</code> and <code>POST /weather/search</code> routes.</li>
+      <li>Push <code>main</code> and redeploy the existing <code>ai-support-app</code> with source path <code>homework-2</code>.</li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <h2 style="margin-top:0">Serverless job dependencies</h2>
+    <pre><code>databricks-sdk&gt;=0.30.0,&lt;1
+sentence-transformers&gt;=3.0.0,&lt;6</code></pre>
+    <p class="callout"><strong>Do not add psycopg2 packages to the job overlay.</strong> Databricks Runtime supplies native <code>psycopg2</code>. An overlaid <code>psycopg2-binary</code> wheel caused an observed <code>SIGABRT</code>. The separate App build still installs its own wheel.</p>
+  </section>
+
+  <section class="checklist">
+    <h2 style="margin-top:0">Live verification</h2>
+    <ol>
+      <li>Confirm App status is Running and <code>GET /healthz</code> returns HTTP 200.</li>
+      <li>Sync Chicago and Austin; confirm partial failures would be reported per location.</li>
+      <li>Run <code>jobs/ingest_weather_embeddings.py</code> and record document, chunk, and insert counts.</li>
+      <li>Rerun ingestion; unchanged documents should produce zero new work.</li>
+      <li>Search “flooding or severe weather risk” with <code>top_k=5</code>.</li>
+      <li>Confirm results include location, source type, headline, chunk text, timestamps, and similarity.</li>
+      <li>Run <code>jobs/verify_lakebase_schema.py</code>.</li>
+      <li>Confirm document and embedding counts, <code>vector(384)</code>, the document foreign key, and the HNSW cosine index.</li>
+      <li>Restore the permanent Databricks task path to <code>homework-2/jobs/ingest_weather_embeddings.py</code>.</li>
+      <li>Capture credential-free evidence and rebuild the submission ZIP without caches, virtual environments, secrets, or model artifacts.</li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <h2 style="margin-top:0">Fast diagnosis</h2>
+    <ul>
+      <li><strong>Python kernel aborts importing psycopg2:</strong> remove psycopg2 distributions from the serverless dependency overlay.</li>
+      <li><strong>Python task cannot find the app package:</strong> resolve the task path from <code>__file__</code> or Databricks' injected <code>filename</code> value and add the Homework 2 root to <code>sys.path</code>.</li>
+      <li><strong>No search matches:</strong> verify embeddings exist for each document's current content hash and model name.</li>
+      <li><strong>Vector dimension error:</strong> confirm ingestion and query both use MiniLM and emit exactly 384 values.</li>
+      <li><strong>Duplicate forecasts:</strong> normalize coordinates and construct the stable ID from coordinates, period start, and period name.</li>
+      <li><strong>Stale search text:</strong> compare document and embedding content hashes, then replace outdated chunks transactionally.</li>
+      <li><strong>First operation is slow:</strong> allow for Lakebase scale-to-zero resume and the initial model download.</li>
+      <li><strong>App URL redirects or is blocked:</strong> inspect workspace deployment status and run the equivalent Git-sourced verification task under the authenticated workspace session.</li>
+    </ul>
+  </section>
+
+  <p><a href="../lessons/0002-weather-intelligence-vector-search.html">Return to the full Weather Intelligence walkthrough</a></p>
+</main>
+</body>
+</html>
