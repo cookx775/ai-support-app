@@ -132,3 +132,18 @@ assessment built only on architecture misses where the hours actually go.
 - **Verdict:** dependency guidance needs to distinguish App builds from serverless task
   environments. Reusing an ordinary Python requirements file across them is unsafe when native
   packages overlap with the managed runtime.
+
+### 2026-08-07 — Deployed App REST verification requires interactive user authorization
+
+- **What happened:** a serverless verification task sent an authenticated
+  `POST /weather/search` to the deployed Databricks App URL using the task's Databricks SDK
+  credentials. The Apps gateway did not forward the request to Flask. It redirected the task to
+  the workspace OAuth consent flow and returned the Databricks login HTML.
+- **Evidence:** the final response URL was the workspace's OAuth group-selection/authorization
+  route, with `text/html` content rather than the endpoint's JSON contract. The job did not log
+  its authorization header or token.
+- **Consequence:** a Git-sourced job can prove the application repository path and Lakebase
+  retrieval, but it is not equivalent to an HTTP call through the protected App gateway. A raw
+  curl/Postman capture must use an authenticated interactive user session or a separately
+  configured OAuth client accepted by the App gateway.
+- **Classification:** authentication boundary, not an application endpoint or Lakebase failure.
