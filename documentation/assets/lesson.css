@@ -53,6 +53,7 @@ a { color: var(--blue); }
 .success { border-left-color: var(--green); background: #eefaf4; }
 code { padding: .1rem .35rem; border-radius: 5px; background: #edf2f7; font-size: .92em; }
 pre { overflow-x: auto; padding: 16px; border-radius: 10px; background: #101827; color: #e8eef6; }
+pre code { padding: 0; background: transparent; color: inherit; font-size: inherit; }
 img { width: 100%; height: auto; border: 1px solid var(--line); border-radius: 12px; }
 li + li { margin-top: 7px; }
 details { padding: 15px 18px; margin: 12px 0; }
