@@ -120,6 +120,10 @@ therefore be slower while the model downloads and Lakebase resumes from scale-to
      -d '{"query":"flash flood risk this weekend","top_k":5}'
    ```
 
+   `jobs/search_weather.py` is the corresponding one-time Git-sourced verification task for an
+   App deployment whose user-authorization proxy prevents unattended REST calls. It uses the
+   same query model and repository cosine-search method as `POST /weather/search`.
+
 Supported sync locations are city strings, `{lat, lon, label}` objects, and two-number
 `[lat, lon]` pairs. `limit` is clamped to 1–50 per location; `top_k` is clamped to 1–20.
 
