@@ -27,3 +27,15 @@ agent to use that interface instead of hallucinating current facts.
 - A separate dashboard App.
 - NWS alert integration, historical weather, persistence, and scheduled collection.
 - Treating deterministic clothing/umbrella thresholds as a trained prediction model.
+
+## Delivery record — 2026-08-08
+
+- Deployed `homework-3/mcp_server` in place to `ai-support-app` from commit `2b43a96`.
+- Deployment `01f19359d3fd10439da49abc1590e4e8` reached `SUCCEEDED`; the App is running.
+- The deployed `/mcp` endpoint completed an authenticated MCP handshake, discovered all four
+  tools, and returned live Open-Meteo results for forecast, recommendation, and comparison calls.
+- Rollback remains `homework-2` at commit `4e5803cc7aae11f49a3343ddca26995914a8b8e7`.
+- Agent Bricks attachment is blocked in this Free Edition workspace: direct App discovery only
+  lists immutable App names beginning with `mcp-`, while external registration requires a Unity
+  Catalog location and durable credential. The authorized plan forbids deleting/recreating
+  `ai-support-app`; no persistent credential was left behind.

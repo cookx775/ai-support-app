@@ -1,0 +1,7 @@
+command:
+  - python
+  - weather_mcp_server.py
+
+env:
+  - name: LOG_LEVEL
+    value: INFO

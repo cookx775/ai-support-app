@@ -1,0 +1,50 @@
+{
+  "captured_at": "2026-08-08T18:54:07Z",
+  "endpoint": "https://ai-support-app-7474657586545240.aws.databricksapps.com/mcp",
+  "protocol_version": "2025-03-26",
+  "server": {"name": "weather-prediction", "version": "3.4.6"},
+  "discovered_tools": [
+    "get_current_weather",
+    "get_forecast",
+    "get_weather_recommendation",
+    "compare_weather"
+  ],
+  "calls": [
+    {
+      "tool": "get_forecast",
+      "arguments": {"location": "Chicago", "days": 2},
+      "status": "success",
+      "canonical_location": "Chicago, Illinois, United States",
+      "timezone": "America/Chicago",
+      "tomorrow": {
+        "date": "2026-08-09",
+        "conditions": "Moderate drizzle",
+        "temperature_high": {"value": 81.5, "unit": "°F"},
+        "precipitation_probability": {"value": 43, "unit": "%"},
+        "precipitation": {"value": 0.043, "unit": "inch"}
+      }
+    },
+    {
+      "tool": "get_weather_recommendation",
+      "arguments": {"location": "Austin", "date": "2026-08-15"},
+      "status": "success",
+      "canonical_location": "Austin, Texas, United States",
+      "recommendations": {
+        "umbrella_needed": false,
+        "jacket_recommended": false,
+        "heat_caution": true,
+        "wind_caution": false
+      }
+    },
+    {
+      "tool": "compare_weather",
+      "arguments": {"locations": ["Chicago", "Austin"], "date": "2026-08-15"},
+      "status": "success",
+      "warmest_first": ["Austin, Texas, United States", "Chicago, Illinois, United States"],
+      "lowest_precipitation_risk_first": [
+        "Austin, Texas, United States",
+        "Chicago, Illinois, United States"
+      ]
+    }
+  ]
+}

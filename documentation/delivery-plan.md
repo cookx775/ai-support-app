@@ -51,7 +51,7 @@ missed HW3 certifies nothing.
 |---|---|---|---|
 | D1 | Homework 1 — Lakebase support app | Aug 4 | ✅ **Submitted, 100/100.** `submissions/homework-1/` |
 | D2 | Homework 2 — Weather Intelligence | Aug 6 | ✅ **Submitted, 100/100.** `submissions/homework-2/` |
-| D3 | Homework 3 — Weather Prediction MCP + Agent | Aug 8 | 🔄 Source and tests complete; live Databricks deployment, Agent Bricks evidence, packaging, and submission remain |
+| D3 | Homework 3 — Weather Prediction MCP + Agent | Aug 8 | ⚠️ Source, 58-test suite, live in-place deployment, four-tool MCP discovery/calls, and packaging complete. Agent Bricks attachment is platform-blocked because reused `ai-support-app` is not auto-discovered and Free Edition external registration requires unavailable UC location/durable auth. |
 | D4 | Capstone — A1 Tariff & Trade-Policy Exposure Copilot | Aug 9 | 🔄 **In build, in `../tariff-copilot`.** Implementation spine complete through failure-safe analysis: 6 of 9 tickets closed (#8 foundation, #10 scenario, #11 Impact Outlook, #12 confirmed Sourcing Review, #13 failure-safe paths, #14 evidence harness); 123 tests + Ruff pass; foundation app deployed and reload-persistent. **Not submission-ready:** the evidence manifest verifies **0 of 5** requirements — no live run has been captured. Open: #9 (live retrieval evidence), #15 (five-minute journey), #16 (release). See that repo's `pm/health-check.md` for current state |
 | D5 | Written platform pros/cons assessment (employer) | After Aug 9 | ⬜ Evidence logging starts now, see P1 |
 | D6 | Five-minute executive demo (employer) | After Aug 9 | ⬜ Falls out of D4 if the frontend is built for it |
@@ -179,10 +179,11 @@ exists so Aug 6–9 is spent on the product rather than on platform archaeology.
 
 ## Phase 4 — Aug 8 (HW3 + agent + **M1**, ~7 hrs)
 
-- [ ] **D3 — Homework 3.** Open-Meteo adapter, four FastMCP tools, protocol tests, agent prompt,
-      and deployment runbook are implemented under `homework-3/`. All three App slots are full,
-      so record and then replace the live source of `ai-support-app`; register `/mcp`, capture
-      three Agent Bricks tool traces, package, and submit before returning to the capstone.
+- [~] **D3 — Homework 3.** Open-Meteo adapter, four FastMCP tools, protocol tests, agent prompt,
+      and deployment runbook are implemented under `homework-3/`. `ai-support-app` is live from
+      the HW3 source and its deployed `/mcp` completed discovery plus three live tool calls.
+      Packaging is complete. Agent Bricks traces remain blocked by the current Free Edition
+      registration constraints documented in the HW3 mission and submission summary.
 - [ ] **C4.1 — Agent loop and write tools.** `search_documents`, `get_component` / `get_supplier`,
       then the writes: raise an exposure flag, open a sourcing-review work item, assign a buyer,
       advance stage, log a pricing decision, add a note, write a cited memo. Every call writes to
