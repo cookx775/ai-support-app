@@ -1,0 +1,9 @@
+Homework 3 local validation
+Captured: 2026-08-08T19:05:06Z
+Environment: Python 3.11 isolated virtual environment
+
+Command: /private/tmp/weather-hw3-py311/bin/ruff check homework-3
+Result: All checks passed!
+
+Command: /private/tmp/weather-hw3-py311/bin/pytest -q
+Result: 58 passed in 1.46s

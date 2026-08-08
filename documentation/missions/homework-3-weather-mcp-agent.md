@@ -38,4 +38,5 @@ agent to use that interface instead of hallucinating current facts.
 - Agent Bricks attachment is blocked in this Free Edition workspace: direct App discovery only
   lists immutable App names beginning with `mcp-`, while external registration requires a Unity
   Catalog location and durable credential. The authorized plan forbids deleting/recreating
-  `ai-support-app`; no persistent credential was left behind.
+  `ai-support-app`; no persistent credential was left behind. Screenshots of both UI constraints
+  are preserved in `submissions/homework-3/screenshots/`.

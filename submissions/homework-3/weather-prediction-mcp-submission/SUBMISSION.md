@@ -3,6 +3,8 @@
 ## Delivered
 
 - Source: `homework-3/` at Git commit `2b43a96`
+- Git repository: https://github.com/cookx775/ai-support-app
+- Branch: https://github.com/cookx775/ai-support-app/tree/main
 - App: `ai-support-app`
 - Endpoint: `https://ai-support-app-7474657586545240.aws.databricksapps.com/mcp`
 - Deployment: `01f19359d3fd10439da49abc1590e4e8` (`SUCCEEDED`)
@@ -42,8 +44,14 @@ No persistent credential was created or retained.
 
 ## Evidence
 
-- `screenshots/deployed-app.png` — running App, source commit, and successful startup
+- `screenshots/deployed-app.png` — running App, source commit, successful startup, and corrected
+  HW3 weather-MCP description
+- `screenshots/agent-bricks-app-selector-limitation.png` — Supervisor Agent's direct Databricks
+  App selector exposes only `mcp-trading-map-server`, not the required reused `ai-support-app`
+- `screenshots/external-mcp-registration-requirements.png` — external MCP registration for the
+  deployed `/mcp` URL cannot load tools without a required authentication credential
 - `evidence/deployed-protocol-smoke.json` — sanitized discovery and live tool-call results
+- `evidence/validation.txt` — final local Ruff and pytest command results
 - `agent/system-prompt.md` — exact guardrails for the intended Agent Bricks agent
 - `agent/agent-config.md` — the three required demonstration prompts
 
