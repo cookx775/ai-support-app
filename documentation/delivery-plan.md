@@ -1,10 +1,22 @@
 # Delivery Plan
 
-Last updated: **2026-08-06** · Hard cutoff **Aug 9, 10:00 PM PT** = **Aug 10, 12:00 AM CT**
+Last updated: **2026-08-07** · Hard cutoff **Aug 9, 10:00 PM PT** = **Aug 10, 12:00 AM CT**
 
 The execution checklist. `bootcamp.md` says what the program is, `capstone-brief.md` says what
 to build; this file says **what to do next, in what order, and whether it is done**. It is the
 single source of truth for status — update it at the end of every work block, before pushing.
+
+> **Scope boundary — the capstone build moved out of this repository on 2026-08-05.**
+> It now lives in the sibling repository `../tariff-copilot`
+> (`github.com/cookx775/tariff-copilot`), which is **authoritative for all capstone build
+> status**: tickets, gates, tests, deployment, and scoring evidence. Read its
+> `pm/health-check.md` first, then `planning/roadmap/roadmap.json` and
+> `evidence/evidence-manifest.json`.
+>
+> **This file remains authoritative for the program**: schedule, homework, certification, the
+> employer deliverables, and the capstone *spec* (`capstone-brief.md`). The capstone rows below
+> are a program-level rollup only — when they disagree with the capstone repository, the
+> capstone repository wins. Do not track capstone task state here; it drifts.
 
 ## The strategy this plan is built around
 
@@ -40,7 +52,7 @@ missed HW3 certifies nothing.
 | D1 | Homework 1 — Lakebase support app | Aug 4 | ✅ **Submitted, 100/100.** `submissions/homework-1/` |
 | D2 | Homework 2 — Weather Intelligence | Aug 6 | ✅ **Submitted, 100/100.** `submissions/homework-2/` |
 | D3 | Homework 3 | Aug 8 | ⬜ Not dropped |
-| D4 | Capstone — A1 Tariff & Trade-Policy Exposure Copilot | Aug 9 | 🔄 Spec complete, build not started |
+| D4 | Capstone — A1 Tariff & Trade-Policy Exposure Copilot | Aug 9 | 🔄 **In build, in `../tariff-copilot`.** Implementation spine complete through failure-safe analysis: 6 of 9 tickets closed (#8 foundation, #10 scenario, #11 Impact Outlook, #12 confirmed Sourcing Review, #13 failure-safe paths, #14 evidence harness); 123 tests + Ruff pass; foundation app deployed and reload-persistent. **Not submission-ready:** the evidence manifest verifies **0 of 5** requirements — no live run has been captured. Open: #9 (live retrieval evidence), #15 (five-minute journey), #16 (release). See that repo's `pm/health-check.md` for current state |
 | D5 | Written platform pros/cons assessment (employer) | After Aug 9 | ⬜ Evidence logging starts now, see P1 |
 | D6 | Five-minute executive demo (employer) | After Aug 9 | ⬜ Falls out of D4 if the frontend is built for it |
 
@@ -52,6 +64,12 @@ evidence is captured during the build and expensive if reconstructed afterward.
 The five mandatory components from the instructor's requirements repo. **Missing any one fails
 the submission regardless of quality elsewhere.** Each row names the specific artifact that
 satisfies it, so "is it done" is answerable rather than arguable.
+
+**The Done column below is not maintained here.** `../tariff-copilot` now answers it
+executably: `python -m evidence_harness manifest` marks a requirement verified only when every
+required live artifact exists, and exits non-zero otherwise. As of 2026-08-07 it reports
+**0 of 5 verified** — the code for all five exists, but nothing has been run live and recorded.
+Treat the rows below as the definition of each requirement, and the harness as its status.
 
 | # | Required component | Satisfied by | Done |
 |---|---|---|---|
@@ -263,3 +281,10 @@ Append one line per work block. Newest last.
   embedding writes, real semantic search, and one lazily cached model. Homework 2 is closed.
   Sentence-aware chunking and renaming the embedding upsert timestamp from `created_at` to
   `updated_at` are retained as optional future polish, not changes to the graded artifact.
+- **2026-08-07** — Scope boundary recorded. This plan still described the capstone as "spec
+  complete, build not started" two days after the build moved to `../tariff-copilot`, which that
+  repository's own health check flagged as a stale competing source. Fixed: D4 now reflects real
+  state (6 of 9 tickets closed, 123 tests passing, deployed foundation, **evidence manifest 0/5**),
+  the grading-contract Done column defers to the executable harness, and a boundary note at the
+  top names `../tariff-copilot` authoritative for capstone build status. Capstone task state is
+  no longer tracked in this file — two checklists for one build is how drift starts.
