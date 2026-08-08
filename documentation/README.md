@@ -68,6 +68,7 @@ One-way, to avoid two competing sources of truth over the same facts:
 |---|---|---|---|
 | Homework 1 — Lakebase support app | [`missions/homework-1-recreate-lakebase-app.md`](missions/homework-1-recreate-lakebase-app.md) | [`lessons/0001-recreate-lakebase-support-app.html`](lessons/0001-recreate-lakebase-support-app.html) | [`reference/databricks-app-recreation-checklist.html`](reference/databricks-app-recreation-checklist.html) |
 | Homework 2 — Weather Intelligence | [`missions/homework-2-weather-intelligence.md`](missions/homework-2-weather-intelligence.md) | [`lessons/0002-weather-intelligence-vector-search.html`](lessons/0002-weather-intelligence-vector-search.html) | [`reference/weather-intelligence-pipeline-checklist.html`](reference/weather-intelligence-pipeline-checklist.html) |
+| Homework 3 — Weather Prediction MCP + Agent | [`missions/homework-3-weather-mcp-agent.md`](missions/homework-3-weather-mcp-agent.md) | — | — |
 
 ## Working on a machine for the first time
 

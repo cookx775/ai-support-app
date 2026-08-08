@@ -110,7 +110,7 @@ authoritative. This table only maps assignments to their durable records.
 |---|---|---|
 | Homework 1 — Lakebase-backed support app | Aug 4 | `submissions/homework-1/` |
 | Homework 2 — Weather Intelligence vector search | Aug 6 | `homework-2/` and `submissions/homework-2/` |
-| Homework 3 | Aug 8 | Add when dropped |
+| Homework 3 — Weather Prediction MCP + Agent | Aug 8 | `homework-3/` and `submissions/homework-3/` |
 | Capstone | — | `documentation/capstone-brief.md` |
 
 Homework 2 is standalone application source under `homework-2/`. It reuses the existing
